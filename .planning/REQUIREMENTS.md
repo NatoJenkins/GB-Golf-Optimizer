@@ -68,27 +68,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UPLD-01 | — | Pending |
-| UPLD-02 | — | Pending |
-| OPT-01 | — | Pending |
-| OPT-02 | — | Pending |
-| OPT-03 | — | Pending |
-| OPT-04 | — | Pending |
-| OPT-05 | — | Pending |
-| OPT-06 | — | Pending |
-| OPT-07 | — | Pending |
-| DATA-01 | — | Pending |
-| DATA-02 | — | Pending |
-| DATA-03 | — | Pending |
-| DISP-01 | — | Pending |
-| DISP-02 | — | Pending |
-| DEPL-01 | — | Pending |
+| UPLD-01 | Phase 1 | Pending |
+| UPLD-02 | Phase 1 | Pending |
+| OPT-01 | Phase 2 | Pending |
+| OPT-02 | Phase 2 | Pending |
+| OPT-03 | Phase 2 | Pending |
+| OPT-04 | Phase 2 | Pending |
+| OPT-05 | Phase 1 | Pending |
+| OPT-06 | Phase 2 | Pending |
+| OPT-07 | Phase 1 | Pending |
+| DATA-01 | Phase 1 | Pending |
+| DATA-02 | Phase 1 | Pending |
+| DATA-03 | Phase 1 | Pending |
+| DISP-01 | Phase 3 | Pending |
+| DISP-02 | Phase 3 | Pending |
+| DEPL-01 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-13*
-*Last updated: 2026-03-13 after initial definition*
+*Last updated: 2026-03-13 after roadmap creation*
