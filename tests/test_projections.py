@@ -1,7 +1,7 @@
 def test_valid_projections_returns_dict(tmp_csv_file, sample_projections_csv):
     from gbgolf.data.projections import parse_projections_csv  # ImportError until Plan 02
     path = tmp_csv_file(sample_projections_csv)
-    result = parse_projections_csv(path)
+    result, warnings = parse_projections_csv(path)
     assert isinstance(result, dict)
     assert "scottie scheffler" in result  # normalized key
 
