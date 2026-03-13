@@ -1,0 +1,94 @@
+# Requirements: GB Golf Optimizer
+
+**Defined:** 2026-03-13
+**Core Value:** Generate the best possible cash contest lineups from the user's available player cards, maximizing expected score within salary and collection constraints.
+
+## v1 Requirements
+
+### Upload
+
+- [ ] **UPLD-01**: User can upload a GameBlazers roster CSV export (columns: Player, Positions, Team, Multiplier, Overall, Franchise, Rookie, Tradeable, Salary, Collection, Status, Expires)
+- [ ] **UPLD-02**: User can upload a weekly projections CSV containing player name and projected fantasy score
+
+### Optimization
+
+- [ ] **OPT-01**: Optimizer generates 3 optimal lineups for The Tips contest (6 golfers per lineup, salary $30,000–$64,000, max 3 Weekly Collection cards, max 6 Core cards)
+- [ ] **OPT-02**: Optimizer generates 2 optimal lineups for The Intermediate Tee contest (5 golfers per lineup, salary $20,000–$52,000, max 2 Weekly Collection cards, max 5 Core cards)
+- [ ] **OPT-03**: Cash contest (The Tips) is fully optimized first; Intermediate Tee lineups are built using only cards not already assigned to Tips lineups
+- [ ] **OPT-04**: Each card may appear in at most one lineup across all contests (cards are locked per lineup)
+- [ ] **OPT-05**: Effective card value is calculated as projected_score × multiplier
+- [ ] **OPT-06**: Optimizer respects both the salary floor (minimum) and salary cap (maximum) for each contest
+- [ ] **OPT-07**: Contest parameters (salary cap, salary floor, roster size, max entries, collection limits) are stored in an editable JSON config file
+
+### Data Integrity
+
+- [ ] **DATA-01**: Cards with $0 salary are automatically excluded from optimization (not in tournament field)
+- [ ] **DATA-02**: App surfaces a report of roster players with no matching projection so the user can identify data gaps
+- [ ] **DATA-03**: Cards past their Expires date are automatically excluded from optimization
+
+### Display
+
+- [ ] **DISP-01**: User can view all generated lineups in the browser, showing for each lineup: player name, collection, salary, multiplier, projected score, and lineup totals (total salary, total projected score)
+- [ ] **DISP-02**: Lineups are clearly grouped by contest (The Tips vs The Intermediate Tee)
+
+### Deployment
+
+- [ ] **DEPL-01**: App is deployed and accessible via the Hostinger KVM 2 VPS (silverreyes.net or subdomain)
+
+## v2 Requirements
+
+### Usability
+
+- **USBL-01**: Contest configuration editor in the web UI (currently requires direct JSON file edit)
+- **USBL-02**: Card comparison view — side-by-side display of multiple cards for the same player
+- **USBL-03**: Manual lock/exclude — user can force a specific card in or out before optimizing
+- **USBL-04**: Lineup export — copy lineup to clipboard or download as CSV for easy entry into GameBlazers
+
+### Advanced Optimization
+
+- **ADV-01**: Exposure limits — cap how often a single golfer appears across all lineups (e.g. max 2 of 5 lineups)
+- **ADV-02**: Diversity constraints — enforce minimum player differences between lineups beyond card locking
+- **ADV-03**: Sensitivity analysis — show how lineup changes if a player's projection shifts
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Scraping GameBlazers for contest data | Fragile, login-dependent; manual config file is simpler and reliable |
+| Automatic projection fetching | User averages multiple sources manually; automation adds complexity without clear benefit |
+| User accounts / authentication | Single shared app; no per-user data to protect |
+| RUC (Recycling Useless Cards) optimization | Separate system; out of scope for lineup optimizer |
+| Mobile native app | Web app accessible from any browser |
+| Stacking constraints | Team-sport DFS concept; irrelevant for individual-sport golf |
+| Overall score in optimization | GameBlazers "Overall" is for RUC card burning only, not performance prediction |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| UPLD-01 | — | Pending |
+| UPLD-02 | — | Pending |
+| OPT-01 | — | Pending |
+| OPT-02 | — | Pending |
+| OPT-03 | — | Pending |
+| OPT-04 | — | Pending |
+| OPT-05 | — | Pending |
+| OPT-06 | — | Pending |
+| OPT-07 | — | Pending |
+| DATA-01 | — | Pending |
+| DATA-02 | — | Pending |
+| DATA-03 | — | Pending |
+| DISP-01 | — | Pending |
+| DISP-02 | — | Pending |
+| DEPL-01 | — | Pending |
+
+**Coverage:**
+- v1 requirements: 15 total
+- Mapped to phases: 0
+- Unmapped: 15 ⚠️
+
+---
+*Requirements defined: 2026-03-13*
+*Last updated: 2026-03-13 after initial definition*
