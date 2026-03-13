@@ -27,11 +27,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. User can provide a projections CSV and each card receives an effective value (projected_score x multiplier), with unmatched players surfaced in a report
   3. Cards with $0 salary or past expiration dates are automatically excluded from the card pool
   4. Contest parameters (salary ranges, roster sizes, collection limits) are loaded from an editable JSON config file
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md — Project scaffold: pyproject.toml, gbgolf package skeleton, pytest test infrastructure with failing stubs
+- [ ] 01-02-PLAN.md — Core parsers: Card model, roster CSV parser, projections CSV parser, name normalization and projection matching
+- [ ] 01-03-PLAN.md — Filters and config: $0/expired/no-projection exclusion filters, Pydantic contest config loader, contest_config.json
+- [ ] 01-04-PLAN.md — Pipeline integration: validate_pipeline() public API, CLI entry point, report formatting, human readability checkpoint
 
 ### Phase 2: Optimization Engine
 **Goal**: Given validated cards and contest config, the optimizer produces correct optimal lineups for both contests with all constraints satisfied
@@ -70,7 +72,7 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Foundation | 0/0 | Not started | - |
+| 1. Data Foundation | 0/4 | Planned | - |
 | 2. Optimization Engine | 0/0 | Not started | - |
 | 3. Web Application and Deployment | 0/0 | Not started | - |
 
