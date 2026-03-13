@@ -6,6 +6,7 @@ Rory McIlroy,G,TOR,1.2,88,False,False,True,11000,Weekly Collection,Active,2026-0
 Ludvig Aberg,G,BOS,1.3,85,False,True,True,9000,Core,Active,2026-09-15
 Tommy Fleetwood,G,NY,1.1,82,False,False,True,8000,Core,Active,2025-01-01
 Collin Morikawa,G,LA,1.4,87,False,False,True,10000,Weekly Collection,Active,2026-12-31
+Xander Schauffele,G,CHI,1.2,84,False,False,True,9500,Core,Active,2026-12-31
 No Projection Guy,G,ATL,1.0,75,False,False,True,7000,Core,Active,2026-12-31
 Zero Salary Guy,G,BOS,1.0,70,False,False,True,0,Core,Active,2026-12-31
 """
@@ -16,6 +17,7 @@ Rory McIlroy,68.3
 Ludvig Aberg,65.1
 Tommy Fleetwood,60.0
 Collin Morikawa,70.2
+Xander Schauffele,67.8
 bad_row_no_score,
 """
 
