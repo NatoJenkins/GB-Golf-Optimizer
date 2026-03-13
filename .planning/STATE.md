@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-data-foundation 01-01-PLAN.md
-last_updated: "2026-03-13T22:48:59.245Z"
+stopped_at: Completed 01-data-foundation 01-02-PLAN.md
+last_updated: "2026-03-13T22:53:44.761Z"
 last_activity: 2026-03-13 -- Roadmap created
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-data-foundation P01 | 4 | 2 tasks | 11 files |
+| Phase 01-data-foundation P02 | 6 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,9 @@ Recent decisions affecting current work:
 - [Roadmap]: OPT-05 (effective value calc) and OPT-07 (contest config) assigned to Phase 1 since they are data-layer concerns consumed by the optimizer
 - [Phase 01-data-foundation]: Used setuptools.build_meta (not backends.legacy:build) for Python 3.11/pip 24 compat
 - [Phase 01-data-foundation]: Lazy imports inside test functions ensure pytest collection succeeds with 0 errors (RED at execution, not collection)
+- [Phase 01-data-foundation]: parse_roster_csv validates required columns immediately on open — fails fast with sorted missing column list
+- [Phase 01-data-foundation]: effective_value = round(projected_score * multiplier, 4) to avoid float precision noise
+- [Phase 01-data-foundation]: dateutil fallback for Expires treats unparseable as None (card included) — safer than accidental exclusion
 
 ### Pending Todos
 
@@ -75,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13T22:48:59.242Z
-Stopped at: Completed 01-data-foundation 01-01-PLAN.md
+Last session: 2026-03-13T22:53:44.758Z
+Stopped at: Completed 01-data-foundation 01-02-PLAN.md
 Resume file: None
