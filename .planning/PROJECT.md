@@ -27,11 +27,21 @@ Generate the best possible cash contest lineups from the user's available player
 - ✓ Unmatched player report surfaced in UI — v1.0
 - ✓ App deployed to Hostinger KVM 2 VPS at gameblazers.silverreyes.net/golf — v1.0
 
+## Current Milestone: v1.1 Manual Lock/Exclude
+
+**Goal:** Let users force specific cards or golfers in or out of optimization after uploading CSVs, with the ability to adjust and re-optimize iteratively within a session.
+
+**Target features:**
+- Lock a specific card (force a particular card into optimizer)
+- Lock a golfer by name (any of their cards may be used)
+- Exclude a card or golfer (removed from all lineups for this session)
+- Accessible before and after optimizing; resets on new CSV upload
+
 ### Active
 
+- [ ] Manual lock/exclude — user can force a specific card or golfer in or out before optimizing (USBL-03)
 - [ ] Contest configuration editor in the web UI (USBL-01)
 - [ ] Card comparison view — side-by-side display of multiple cards for same player (USBL-02)
-- [ ] Manual lock/exclude — user can force a specific card in or out before optimizing (USBL-03)
 - [ ] Lineup export — copy to clipboard or download as CSV (USBL-04)
 - [ ] Exposure limits — cap how often a single golfer appears across all lineups (ADV-01)
 - [ ] Diversity constraints — enforce minimum player differences between lineups (ADV-02)
@@ -85,4 +95,4 @@ Generate the best possible cash contest lineups from the user's available player
 | ProxyFix skipped in TESTING mode | Avoids Flask test client URL generation conflicts | ✓ Good |
 
 ---
-*Last updated: 2026-03-14 after v1.0 milestone*
+*Last updated: 2026-03-14 after v1.1 milestone start*
