@@ -22,7 +22,7 @@ See: `.planning/milestones/v1.0-ROADMAP.md` for full phase details.
 
 **Milestone Goal:** Users can force specific cards or golfers in or out of optimization after uploading CSVs, and re-optimize iteratively within a session without re-uploading files.
 
-- [ ] **Phase 4: Constraint Foundation** — Stable card identity, lock/exclude ILP constraints, pre-solve diagnostics, and session reset
+- [x] **Phase 4: Constraint Foundation** — Stable card identity, lock/exclude ILP constraints, pre-solve diagnostics, and session reset (completed 2026-03-14)
 - [ ] **Phase 5: Serialization and Re-Optimize Route** — Card serialization helpers and POST /reoptimize endpoint
 - [ ] **Phase 6: Lock/Exclude UI** — Player pool table with per-card controls, Re-Optimize button, and locked card markers in output
 - [ ] **Phase 7: Polish** — Clear-all button and active lock/exclude count display
@@ -83,7 +83,7 @@ Plans:
 | 1. Data Foundation | v1.0 | 4/4 | Complete | 2026-03-13 |
 | 2. Optimization Engine | v1.0 | 3/3 | Complete | 2026-03-13 |
 | 3. Web Application and Deployment | v1.0 | 3/3 | Complete | 2026-03-13 |
-| 4. Constraint Foundation | v1.1 | 2/3 | In progress | - |
+| 4. Constraint Foundation | 3/3 | Complete   | 2026-03-14 | - |
 | 5. Serialization and Re-Optimize Route | v1.1 | 0/? | Not started | - |
 | 6. Lock/Exclude UI | v1.1 | 0/? | Not started | - |
 | 7. Polish | v1.1 | 0/? | Not started | - |

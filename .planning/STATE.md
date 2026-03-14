@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Manual Lock/Exclude
-status: in-progress
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-03-14T07:27:46Z"
-last_activity: 2026-03-14 — Phase 4 Plan 02 complete (engine ILP constraints + optimize() ConstraintSet)
+status: executing
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-03-14T07:39:51.736Z"
+last_activity: "2026-03-14 — Plan 04-03 complete: Flask session integration, reset banner, 3 integration tests"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 18
 ---
 
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 
 ## Current Position
 
-Phase: 4 of 7 (Constraint Foundation)
-Plan: 3 of 3 (next: 04-03-PLAN.md — Flask session integration and reset banner)
-Status: In progress
-Last activity: 2026-03-14 — Plan 04-02 complete: engine ILP constraints + optimize() ConstraintSet orchestration
+Phase: 4 of 7 (Constraint Foundation) — COMPLETE
+Plan: 3 of 3 — all complete
+Status: Complete
+Last activity: 2026-03-14 — Plan 04-03 complete: Flask session integration, reset banner, 3 integration tests
 
-Progress: [██░░░░░░░░] 18% (v1.1, 2/3 Phase 4 plans done)
+Progress: [██████████] 100% (v1.1, 3/3 Phase 4 plans done)
 
 ## Accumulated Context
 
@@ -49,6 +49,8 @@ Recent decisions affecting current work:
 - Card-lock fires once: discard from active_card_locks after placement (used_card_keys already prevents reuse).
 - Excludes are pre-filters applied to available pool per iteration, not ILP constraints.
 - Composite key (player, salary, multiplier, collection) replaces id() for stable cross-request card identity.
+- [Phase 04-constraint-foundation]: Session clear is unconditional on file upload (no hash comparison) — simplicity over incremental invalidation
+- [Phase 04-constraint-foundation]: Session clear before ConstraintSet build so new ConstraintSet always reflects cleared state (order: clear -> build -> optimize)
 
 ### Pending Todos
 
@@ -60,6 +62,6 @@ None — Phase 4 multi-lineup lock semantics resolved via fires-once tracking.
 
 ## Session Continuity
 
-Last session: 2026-03-14T07:27:46Z
-Stopped at: Completed 04-02-PLAN.md
-Resume file: .planning/phases/04-constraint-foundation/04-03-PLAN.md
+Last session: 2026-03-14T07:39:51.732Z
+Stopped at: Completed 04-03-PLAN.md
+Resume file: None
