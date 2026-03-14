@@ -11,13 +11,14 @@ Requirements for the Manual Lock/Exclude milestone.
 
 - [ ] **LOCK-01**: User can lock a specific card (identified by player + multiplier) to force it into the optimizer
 - [ ] **LOCK-02**: User can lock a golfer by name to force at least one of their cards into a lineup
-- [ ] **LOCK-03**: App shows an informative error when locked cards make salary or collection constraints infeasible before running the optimizer
-- [ ] **LOCK-04**: App warns user when a lock and exclude conflict on the same player or card
+- [x] **LOCK-03**: App shows an informative error when locked cards make salary or collection constraints infeasible before running the optimizer
+- [x] **LOCK-04**: App warns user when a lock and exclude conflict on the same player or card
 
 ### Exclude Controls
 
 - [ ] **EXCL-01**: User can exclude a specific card from all lineups in this session
 - [ ] **EXCL-02**: User can exclude a golfer by name, removing all their cards from all lineups
+<!-- Note: EXCL-01 and EXCL-02 data structures complete (04-01). ILP enforcement in 04-02. -->
 
 ### UI Surface
 
@@ -58,12 +59,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LOCK-01 | Phase 4 | Pending |
-| LOCK-02 | Phase 4 | Pending |
-| LOCK-03 | Phase 4 | Pending |
-| LOCK-04 | Phase 4 | Pending |
-| EXCL-01 | Phase 4 | Pending |
-| EXCL-02 | Phase 4 | Pending |
+| LOCK-01 | Phase 4 | Partial (data structure in 04-01; ILP in 04-02) |
+| LOCK-02 | Phase 4 | Partial (data structure in 04-01; ILP in 04-02) |
+| LOCK-03 | Phase 4 | Complete (04-01) |
+| LOCK-04 | Phase 4 | Complete (04-01) |
+| EXCL-01 | Phase 4 | Partial (data structure in 04-01; ILP pre-filter in 04-02) |
+| EXCL-02 | Phase 4 | Partial (data structure in 04-01; ILP pre-filter in 04-02) |
 | UI-04 | Phase 4 | Pending |
 | UI-02 | Phase 5 | Pending |
 | UI-01 | Phase 6 | Pending |
@@ -78,4 +79,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-14 after v1.1 roadmap creation*
+*Last updated: 2026-03-14 after Phase 4 Plan 01 execution (ConstraintSet module)*

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Manual Lock/Exclude
-status: planning
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-14T07:05:53.775Z"
-last_activity: 2026-03-14 — v1.1 roadmap created
+status: in-progress
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-14T07:51:00.000Z"
+last_activity: 2026-03-14 — Phase 4 Plan 01 complete (ConstraintSet module)
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 3
+  completed_plans: 1
+  percent: 8
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 4 of 7 (Constraint Foundation)
-Plan: — (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-14 — v1.1 roadmap created
+Plan: 2 of 3 (next: 04-02-PLAN.md — engine ILP constraints)
+Status: In progress
+Last activity: 2026-03-14 — Plan 04-01 complete: ConstraintSet module and unit tests
 
-Progress: [░░░░░░░░░░] 0% (v1.1)
+Progress: [█░░░░░░░░░] 8% (v1.1, 1/3 Phase 4 plans done)
 
 ## Accumulated Context
 
@@ -42,6 +42,9 @@ Recent decisions affecting current work:
 - Session architecture: Lock/exclude identifiers stored in Flask built-in cookie session (fits comfortably under 4KB). Card objects NOT stored in session — serialized to hidden form field instead.
 - Stable card key: Use composite (player, salary, multiplier, collection) key rather than Python id() — id() breaks across requests.
 - No new dependencies: Flask session + PuLP += constraint API + Jinja2 checkboxes covers all v1.1 needs without additions.
+- PreSolveError is a return-object (not exception): callers check if result is None or PreSolveError instance.
+- check_conflicts runs before check_feasibility (documented in module docstring as contract).
+- Golfer locks are ILP-level constraints (engine.py), not pre-solve. check_feasibility only inspects locked_cards.
 
 ### Pending Todos
 
@@ -53,6 +56,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T07:05:53.773Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-constraint-foundation/04-CONTEXT.md
+Last session: 2026-03-14T07:51:00.000Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: .planning/phases/04-constraint-foundation/04-02-PLAN.md
