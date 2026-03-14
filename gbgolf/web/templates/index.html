@@ -56,7 +56,7 @@
   <form method="post" action="{{ url_for('main.reoptimize') }}" id="reoptimize-form">
     <input type="hidden" name="card_pool" value="{{ card_pool_json | e }}" />
 
-    <details id="player-pool-section">
+    <details id="player-pool-section" open>
       <summary>Lock / Exclude Players</summary>
       <button type="button" id="clear-all-btn" onclick="clearAllCheckboxes()">Clear All</button>
       <table>
