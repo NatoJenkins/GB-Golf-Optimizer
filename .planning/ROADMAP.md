@@ -2,7 +2,7 @@
 
 ## Overview
 
-This roadmap delivers a working fantasy golf lineup optimizer in three phases, ordered by the dependency chain: validated data in, correct optimization, usable output. Phase 1 builds the data ingestion and validation layer (CSV parsing, card model, contest config) -- because the optimizer is only as good as its inputs. Phase 2 builds the ILP optimization engine with all GameBlazers-specific constraints (salary ranges, collection limits, cross-lineup card exclusion, cash-first priority). Phase 3 wires everything to a web UI via FastAPI/Jinja2 and deploys to the VPS. Each phase produces independently testable, verifiable output.
+This roadmap delivers a working fantasy golf lineup optimizer in three phases, ordered by the dependency chain: validated data in, correct optimization, usable output. Phase 1 builds the data ingestion and validation layer (CSV parsing, card model, contest config) -- because the optimizer is only as good as its inputs. Phase 2 builds the ILP optimization engine with all GameBlazers-specific constraints (salary ranges, collection limits, cross-lineup card exclusion, cash-first priority). Phase 3 wires everything to a web UI via Flask/Jinja2 and deploys to the VPS. Each phase produces independently testable, verifiable output.
 
 ## Phases
 
@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data Foundation** - CSV parsing, card data model, projections merging, contest config, and data validation (completed 2026-03-13)
 - [x] **Phase 2: Optimization Engine** - ILP lineup generation with salary, collection, and card exclusion constraints (completed 2026-03-14)
-- [ ] **Phase 3: Web Application and Deployment** - FastAPI endpoints, lineup display UI, and VPS deployment
+- [ ] **Phase 3: Web Application and Deployment** - Flask endpoints, lineup display UI, and VPS deployment
 
 ## Phase Details
 
@@ -60,11 +60,12 @@ Plans:
   2. Generated lineups are displayed in the browser grouped by contest, showing player name, collection, salary, multiplier, projected score, and lineup totals
   3. Unmatched-player report is visible in the UI so users can identify data gaps before trusting results
   4. App is accessible at silverreyes.net (or subdomain) on the Hostinger KVM 2 VPS
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md — Flask web app: test stubs + TDD implementation of gbgolf/web/ package (app factory, routes, Jinja2 template, CSS) and wsgi.py entry point
+- [ ] 03-02-PLAN.md — Deployment config: systemd service unit, Nginx server block, step-by-step DEPLOY.md for VPS setup
+- [ ] 03-03-PLAN.md — Human verification: user deploys to VPS and confirms live app at gameblazers.silverreyes.net/golf
 
 ## Progress
 
@@ -75,8 +76,8 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 4/4 | Complete   | 2026-03-13 |
 | 2. Optimization Engine | 3/3 | Complete   | 2026-03-14 |
-| 3. Web Application and Deployment | 0/0 | Not started | - |
+| 3. Web Application and Deployment | 0/3 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-13*
-*Last updated: 2026-03-13*
+*Last updated: 2026-03-14*
