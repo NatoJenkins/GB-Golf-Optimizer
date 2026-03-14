@@ -45,7 +45,7 @@ See: `.planning/milestones/v1.0-ROADMAP.md` for full phase details.
 Plans:
 - [x] 04-01-PLAN.md — ConstraintSet module and unit test suite (TDD, LOCK-01 through EXCL-02)
 - [x] 04-02-PLAN.md — Composite key migration and engine ILP constraint injection (LOCK-01, LOCK-02, EXCL-01, EXCL-02)
-- [ ] 04-03-PLAN.md — Flask session integration and reset banner (UI-04)
+- [x] 04-03-PLAN.md — Flask session integration and reset banner (UI-04)
 
 ### Phase 5: Serialization and Re-Optimize Route
 **Goal**: Users can trigger a fresh optimization using their current lock/exclude selections without re-uploading the roster and projections CSVs
@@ -55,7 +55,11 @@ Plans:
   1. User can click Re-Optimize on the results page and receive updated lineups reflecting the current lock/exclude state
   2. Re-optimize works without uploading any files — the original card pool is preserved across requests
   3. Results from re-optimize are identical in layout to the original optimize results
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Card serialization helpers and POST /reoptimize route (TDD, UI-02)
+- [ ] 05-02-PLAN.md — Re-Optimize form and JS overlay listener in index.html (UI-02)
 
 ### Phase 6: Lock/Exclude UI
 **Goal**: Users can see their full eligible card pool after uploading CSVs and toggle lock/exclude on individual cards before or after optimizing
@@ -83,11 +87,11 @@ Plans:
 | 1. Data Foundation | v1.0 | 4/4 | Complete | 2026-03-13 |
 | 2. Optimization Engine | v1.0 | 3/3 | Complete | 2026-03-13 |
 | 3. Web Application and Deployment | v1.0 | 3/3 | Complete | 2026-03-13 |
-| 4. Constraint Foundation | 3/3 | Complete   | 2026-03-14 | - |
-| 5. Serialization and Re-Optimize Route | v1.1 | 0/? | Not started | - |
+| 4. Constraint Foundation | v1.1 | 3/3 | Complete | 2026-03-14 |
+| 5. Serialization and Re-Optimize Route | v1.1 | 0/2 | Not started | - |
 | 6. Lock/Exclude UI | v1.1 | 0/? | Not started | - |
 | 7. Polish | v1.1 | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-03-13*
-*Last updated: 2026-03-14 after Phase 4 Plan 02 executed (2/3 plans complete)*
+*Last updated: 2026-03-14 after Phase 5 planning (2 plans created)*
