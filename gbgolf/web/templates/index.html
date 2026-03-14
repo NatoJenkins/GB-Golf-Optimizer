@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GB Golf Optimizer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+<!-- Full-page loading overlay shown while optimization runs -->
+<div id="loading-overlay" style="display:none;">
+  <div class="overlay-content">Optimizing&hellip;</div>
+</div>
+
+<header>
+  <h1>GB Golf Optimizer</h1>
+</header>
+
+<main>
+
+  <!-- Upload form — collapses to a toggle after results are shown -->
+  <details {% if not show_results %}open{% endif %} id="upload-section">
+    <summary>{% if show_results %}Change files{% else %}Upload files{% endif %}</summary>
+    <form method="post" enctype="multipart/form-data" id="upload-form">
+      <div class="form-row">
+        <label for="roster">Roster CSV</label>
+        <input type="file" id="roster" name="roster" accept=".csv" required />
+      </div>
+      <div class="form-row">
+        <label for="projections">Projections CSV</label>
+        <input type="file" id="projections" name="projections" accept=".csv" required />
+      </div>
+      <button type="submit">Generate Lineups</button>
+    </form>
+  </details>
+
+  {% if error %}
+  <p class="error">{{ error }}</p>
+  {% endif %}
+
+  <!-- Exclusion report — only shown when there are excluded cards -->
+  {% if validation and validation.excluded %}
+  <section id="exclusion-report">
+    <h2>Unmatched Players</h2>
+    <p>The following cards were excluded from lineup generation:</p>
+    <ul>
+      {% for excl in validation.excluded %}
+      <li>{{ excl.player }} &mdash; {{ excl.reason }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <!-- Lineup results — rendered only after a successful POST -->
+  {% if show_results and result %}
+  {% set contest_order = ["The Tips", "The Intermediate Tee"] %}
+  {% for contest_name in contest_order %}
+  <section class="contest-section">
+    <h2>{{ contest_name }}</h2>
+
+    {% set lineups = result.lineups.get(contest_name, []) %}
+    {% set notices = result.infeasibility_notices %}
+
+    {% if lineups %}
+    {% for lineup in lineups %}
+    <h3>
+      Lineup {{ loop.index }}
+      &mdash; Salary: ${{ lineup.total_salary }}
+      | Proj: {{ "%.2f"|format(lineup.total_projected_score) }}
+    </h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Collection</th>
+          <th>Salary</th>
+          <th>Multiplier</th>
+          <th>Proj Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for card in lineup.cards %}
+        <tr>
+          <td>{{ card.player }}</td>
+          <td>{{ card.collection }}</td>
+          <td>${{ card.salary }}</td>
+          <td>{{ card.multiplier }}</td>
+          <td>{{ "%.2f"|format(card.projected_score or 0.0) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2"><strong>Totals</strong></td>
+          <td><strong>${{ lineup.total_salary }}</strong></td>
+          <td></td>
+          <td><strong>{{ "%.2f"|format(lineup.total_projected_score) }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+    {% endfor %}
+
+    {% else %}
+    <!-- No lineups for this contest — check infeasibility notices -->
+    {% set ns = namespace(shown=false) %}
+    {% for notice in notices %}
+    {% if contest_name in notice %}
+    <p class="infeasible">{{ notice }}</p>
+    {% set ns.shown = true %}
+    {% endif %}
+    {% endfor %}
+    {% if not ns.shown %}
+    <p class="infeasible">No lineup could be built for this contest.</p>
+    {% endif %}
+    {% endif %}
+
+  </section>
+  {% endfor %}
+  {% endif %}
+
+</main>
+
+<script>
+  document.getElementById("upload-form").addEventListener("submit", function () {
+    document.getElementById("loading-overlay").style.display = "flex";
+  });
+</script>
+
+</body>
+</html>
