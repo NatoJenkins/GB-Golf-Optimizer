@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Manual Lock/Exclude
 status: completed
-stopped_at: Completed 05-02-PLAN.md — Phase 5 fully complete and browser-verified
-last_updated: "2026-03-14T08:47:48.773Z"
+stopped_at: Phase 6 context gathered
+last_updated: "2026-03-14T18:07:38.129Z"
 last_activity: "2026-03-14 — Plan 05-02 complete: Re-Optimize form, hidden card_pool field, JS overlay listener; browser-verified"
 progress:
   total_phases: 4
@@ -66,6 +66,6 @@ None — Phase 4 multi-lineup lock semantics resolved via fires-once tracking.
 
 ## Session Continuity
 
-Last session: 2026-03-14T08:41:39.878Z
-Stopped at: Completed 05-02-PLAN.md — Phase 5 fully complete and browser-verified
-Resume file: None
+Last session: 2026-03-14T18:07:38.126Z
+Stopped at: Phase 6 context gathered
+Resume file: .planning/phases/06-lock-exclude-ui/06-CONTEXT.md
