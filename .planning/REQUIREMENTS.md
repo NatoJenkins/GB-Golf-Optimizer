@@ -23,7 +23,7 @@ Requirements for the Manual Lock/Exclude milestone.
 ### UI Surface
 
 - [ ] **UI-01**: User sees their eligible player pool with per-card lock/exclude controls after uploading CSVs
-- [ ] **UI-02**: User can re-optimize with updated lock/exclude selections without re-uploading CSVs
+- [x] **UI-02**: User can re-optimize with updated lock/exclude selections without re-uploading CSVs
 - [ ] **UI-03**: Locked cards are visually marked in lineup output confirming constraints took effect
 - [x] **UI-04**: Lock/exclude state resets automatically when new CSVs are uploaded
 - [ ] **UI-05**: User can clear all locks and excludes with a single button
@@ -66,7 +66,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXCL-01 | Phase 4 | Partial (data structure in 04-01; ILP pre-filter in 04-02) |
 | EXCL-02 | Phase 4 | Partial (data structure in 04-01; ILP pre-filter in 04-02) |
 | UI-04 | Phase 4 | Complete |
-| UI-02 | Phase 5 | Pending |
+| UI-02 | Phase 5 | Complete |
 | UI-01 | Phase 6 | Pending |
 | UI-03 | Phase 6 | Pending |
 | UI-05 | Phase 7 | Pending |

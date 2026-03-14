@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Manual Lock/Exclude
-status: completed
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-03-14T07:45:32.057Z"
-last_activity: "2026-03-14 — Plan 04-03 complete: Flask session integration, reset banner, 3 integration tests"
+status: in_progress
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-14T08:28:47.471Z"
+last_activity: "2026-03-14 — Plan 05-01 complete: card pool serialization helpers and POST /reoptimize route"
 progress:
-  total_phases: 4
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 100
+  total_phases: 5
+  completed_phases: 4
+  total_plans: 5
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Generate the best possible cash contest lineups from the user's available player cards, maximizing expected score within salary and collection constraints.
-**Current focus:** Phase 4 — Constraint Foundation
+**Current focus:** Phase 5 — Serialization and Re-optimize Route
 
 ## Current Position
 
-Phase: 4 of 7 (Constraint Foundation) — COMPLETE
-Plan: 3 of 3 — all complete
-Status: Complete
-Last activity: 2026-03-14 — Plan 04-03 complete: Flask session integration, reset banner, 3 integration tests
+Phase: 5 of 7 (Serialization and Re-optimize Route) — In Progress
+Plan: 1 of 2 complete (Plan 01 done, Plan 02 pending)
+Status: In Progress
+Last activity: 2026-03-14 — Plan 05-01 complete: card pool serialization helpers and POST /reoptimize route
 
-Progress: [██████████] 100% (v1.1, 3/3 Phase 4 plans done)
+Progress: [████████░░] 80% (v1.1, 1/2 Phase 5 plans done)
 
 ## Accumulated Context
 
@@ -51,6 +51,8 @@ Recent decisions affecting current work:
 - Composite key (player, salary, multiplier, collection) replaces id() for stable cross-request card identity.
 - [Phase 04-constraint-foundation]: Session clear is unconditional on file upload (no hash comparison) — simplicity over incremental invalidation
 - [Phase 04-constraint-foundation]: Session clear before ConstraintSet build so new ConstraintSet always reflects cleared state (order: clear -> build -> optimize)
+- [Phase 05-serialization-and-re-optimize-route]: Card pool stored as JSON in hidden form field rather than Flask session (avoids 4KB cookie limit)
+- [Phase 05-serialization-and-re-optimize-route]: Two button-rendering tests intentionally RED until Plan 02 adds template changes
 
 ### Pending Todos
 
@@ -62,6 +64,6 @@ None — Phase 4 multi-lineup lock semantics resolved via fires-once tracking.
 
 ## Session Continuity
 
-Last session: 2026-03-14T07:39:51.732Z
-Stopped at: Completed 04-03-PLAN.md
-Resume file: None
+Last session: 2026-03-14T08:28:47.468Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: .planning/phases/05-serialization-and-re-optimize-route/05-02-PLAN.md
