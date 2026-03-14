@@ -153,12 +153,58 @@ def reoptimize():
             error="Session expired — please re-upload your files",
         )
 
+    def _parse_card_keys(raw_list):
+        """Parse pipe-delimited card key strings into (player, salary, multiplier, collection) tuples."""
+        result = []
+        for v in raw_list:
+            parts = v.split("|")
+            if len(parts) != 4:
+                continue
+            try:
+                result.append((parts[0], int(parts[1]), float(parts[2]), parts[3]))
+            except (ValueError, TypeError):
+                continue
+        return result
+
+    # Parse checkbox submissions from form
+    locked_cards = _parse_card_keys(request.form.getlist("lock_card"))
+    excluded_cards = _parse_card_keys(request.form.getlist("exclude_card"))
+    locked_golfers = [v for v in request.form.getlist("lock_golfer") if v]
+    excluded_players = session.get("excluded_players", [])  # preserved, not cleared
+
+    # Write parsed constraints to session
+    session["locked_cards"] = [list(k) for k in locked_cards]
+    session["locked_golfers"] = locked_golfers
+    session["excluded_cards"] = [list(k) for k in excluded_cards]
+    session["excluded_players"] = excluded_players
+
+    # Build ConstraintSet from parsed values (not from session re-read)
     constraints = ConstraintSet(
-        locked_cards=[tuple(k) for k in session.get("locked_cards", [])],
-        locked_golfers=session.get("locked_golfers", []),
-        excluded_cards=[tuple(k) for k in session.get("excluded_cards", [])],
-        excluded_players=session.get("excluded_players", []),
+        locked_cards=locked_cards,
+        locked_golfers=locked_golfers,
+        excluded_cards=excluded_cards,
+        excluded_players=excluded_players,
     )
+
+    # Pre-solve checks before optimize
+    conflict_result = check_conflicts(constraints)
+    if conflict_result is not None:
+        return render_template(
+            "index.html",
+            error=conflict_result.message,
+            show_results=False,
+            card_pool_json=card_pool_json,
+        )
+
+    for contest_config in current_app.config["CONTESTS"]:
+        feasibility_result = check_feasibility(constraints, valid_cards, contest_config)
+        if feasibility_result is not None:
+            return render_template(
+                "index.html",
+                error=feasibility_result.message,
+                show_results=False,
+                card_pool_json=card_pool_json,
+            )
 
     result = optimize(valid_cards, current_app.config["CONTESTS"], constraints=constraints)
 
@@ -168,4 +214,8 @@ def reoptimize():
         show_results=True,
         lock_reset=False,
         card_pool_json=card_pool_json,
+        card_pool=sorted(valid_cards, key=lambda c: (c.player, -c.salary)),
+        locked_card_keys=set(locked_cards),
+        locked_golfer_set=set(locked_golfers),
+        excluded_card_keys=set(excluded_cards),
     )
