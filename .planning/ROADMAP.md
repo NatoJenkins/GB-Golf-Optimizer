@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data Foundation** - CSV parsing, card data model, projections merging, contest config, and data validation (completed 2026-03-13)
 - [x] **Phase 2: Optimization Engine** - ILP lineup generation with salary, collection, and card exclusion constraints (completed 2026-03-14)
-- [ ] **Phase 3: Web Application and Deployment** - Flask endpoints, lineup display UI, and VPS deployment
+- [x] **Phase 3: Web Application and Deployment** - Flask endpoints, lineup display UI, and VPS deployment (completed 2026-03-14)
 
 ## Phase Details
 
@@ -76,7 +76,7 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 4/4 | Complete   | 2026-03-13 |
 | 2. Optimization Engine | 3/3 | Complete   | 2026-03-14 |
-| 3. Web Application and Deployment | 1/3 | In Progress|  |
+| 3. Web Application and Deployment | 3/3 | Complete   | 2026-03-14 |
 
 ---
 *Roadmap created: 2026-03-13*
