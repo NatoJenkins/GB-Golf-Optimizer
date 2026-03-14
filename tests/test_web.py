@@ -482,3 +482,58 @@ def test_nonlocked_card_blank_lock_column(client):
     assert "<th>Lock</th>" in html
     # No lock icon should appear when nothing is locked
     assert "\U0001f512" not in html  # 🔒 must NOT appear
+
+
+# ---------------------------------------------------------------------------
+# Phase 07: UI-05 — Clear All button presence
+# ---------------------------------------------------------------------------
+
+
+def test_clear_all_button_rendered(client):
+    """POST CSVs → HTML contains the Clear All button when results are shown."""
+    response = _post_csvs(client, SAMPLE_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'id="clear-all-btn"' in html
+
+
+def test_clear_all_button_absent_on_get(client):
+    """GET / → Clear All button is NOT present when no results are shown."""
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'id="clear-all-btn"' not in html
+
+
+# ---------------------------------------------------------------------------
+# Phase 07: UI-06 — Constraint count element presence
+# ---------------------------------------------------------------------------
+
+
+def test_constraint_count_element_rendered(client):
+    """POST CSVs → HTML contains the constraint count element when results are shown."""
+    response = _post_csvs(client, SAMPLE_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'id="constraint-count"' in html
+
+
+def test_constraint_count_absent_on_get(client):
+    """GET / → constraint count element is NOT present when no results are shown."""
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'id="constraint-count"' not in html
+
+
+# ---------------------------------------------------------------------------
+# Phase 07: Sortable columns — sort header onclick presence
+# ---------------------------------------------------------------------------
+
+
+def test_sort_headers_rendered(client):
+    """POST CSVs → player pool table th headers have onclick sortTable() handlers."""
+    response = _post_csvs(client, SAMPLE_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'onclick="sortTable(' in html
