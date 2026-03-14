@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Manual Lock/Exclude
-status: completed
-stopped_at: Phase 6 context gathered
-last_updated: "2026-03-14T18:07:38.129Z"
-last_activity: "2026-03-14 — Plan 05-02 complete: Re-Optimize form, hidden card_pool field, JS overlay listener; browser-verified"
+status: in_progress
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-14T18:30:00.000Z"
+last_activity: "2026-03-14 — Plan 06-01 complete: 10 failing RED tests for Phase 6 UI behaviours (player pool table, checkboxes, lock column)"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_plans: 8
+  completed_plans: 6
+  percent: 75
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Generate the best possible cash contest lineups from the user's available player cards, maximizing expected score within salary and collection constraints.
-**Current focus:** Phase 6 — (next phase, Phase 5 complete)
+**Current focus:** Phase 6 — Lock/Exclude UI (Plan 01 complete, Plans 02-03 pending)
 
 ## Current Position
 
-Phase: 5 of 7 (Serialization and Re-optimize Route) — Complete
-Plan: 2 of 2 complete (Plan 01 done, Plan 02 done)
-Status: Phase 5 complete — ready for Phase 6
-Last activity: 2026-03-14 — Plan 05-02 complete: Re-Optimize form, hidden card_pool field, JS overlay listener; browser-verified
+Phase: 6 of 7 (Lock/Exclude UI) — In Progress
+Plan: 1 of 3 complete (Plan 01 done — RED tests; Plan 02, Plan 03 pending)
+Status: Phase 6 Plan 01 complete — ready for Plan 02
+Last activity: 2026-03-14 — Plan 06-01 complete: 10 failing RED tests for Phase 6 UI behaviours (player pool table, checkboxes, lock column)
 
-Progress: [██████████] 100% (v1.1, 2/2 Phase 5 plans done)
+Progress: [███████▌░░] 75% (v1.1, 1/3 Phase 6 plans done)
 
 ## Accumulated Context
 
@@ -55,6 +55,8 @@ Recent decisions affecting current work:
 - [Phase 05-serialization-and-re-optimize-route]: Two button-rendering tests intentionally RED until Plan 02 adds template changes
 - [Phase 05-serialization-and-re-optimize-route]: Re-Optimize form uses | e filter (HTML-entity-escape) for card_pool JSON in attribute context; null-guarded JS listener handles conditional DOM element
 - [Phase 05-serialization-and-re-optimize-route]: Hidden card_pool carried in both standalone #card-pool-data input and inside #reoptimize-form for belt-and-suspenders extensibility
+- [Phase 06-lock-exclude-ui]: test_nonlocked_card_blank_lock_column asserts both Lock header presence AND no icon — double assertion keeps test RED today and guards correctness post-Plan 03
+- [Phase 06-lock-exclude-ui]: Lock icon verified as \U0001f512 Unicode escape in test assert strings for encoding portability
 
 ### Pending Todos
 
@@ -66,6 +68,6 @@ None — Phase 4 multi-lineup lock semantics resolved via fires-once tracking.
 
 ## Session Continuity
 
-Last session: 2026-03-14T18:07:38.126Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-lock-exclude-ui/06-CONTEXT.md
+Last session: 2026-03-14T18:30:00.000Z
+Stopped at: Completed 06-01-PLAN.md
+Resume file: .planning/phases/06-lock-exclude-ui/06-02-PLAN.md

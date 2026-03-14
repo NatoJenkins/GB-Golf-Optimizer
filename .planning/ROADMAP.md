@@ -58,8 +58,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Card serialization helpers and POST /reoptimize route (TDD, UI-02)
-- [ ] 05-02-PLAN.md — Re-Optimize form and JS overlay listener in index.html (UI-02)
+- [x] 05-01-PLAN.md — Card serialization helpers and POST /reoptimize route (TDD, UI-02)
+- [x] 05-02-PLAN.md — Re-Optimize form and JS overlay listener in index.html (UI-02)
 
 ### Phase 6: Lock/Exclude UI
 **Goal**: Users can see their full eligible card pool after uploading CSVs and toggle lock/exclude on individual cards before or after optimizing
@@ -72,7 +72,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Test scaffolding: 10 failing tests for UI-01 and UI-03 (TDD wave 0)
+- [x] 06-01-PLAN.md — Test scaffolding: 10 failing tests for UI-01 and UI-03 (TDD wave 0)
 - [ ] 06-02-PLAN.md — Player pool table, checkbox parsing in /reoptimize route, index route template vars (UI-01)
 - [ ] 06-03-PLAN.md — Lock column in lineup output tables with lock icon (UI-03)
 
@@ -94,9 +94,9 @@ Plans:
 | 3. Web Application and Deployment | v1.0 | 3/3 | Complete | 2026-03-13 |
 | 4. Constraint Foundation | v1.1 | 3/3 | Complete | 2026-03-14 |
 | 5. Serialization and Re-Optimize Route | v1.1 | 2/2 | Complete | 2026-03-14 |
-| 6. Lock/Exclude UI | v1.1 | 0/3 | Not started | - |
+| 6. Lock/Exclude UI | v1.1 | 1/3 | In Progress | - |
 | 7. Polish | v1.1 | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-03-13*
-*Last updated: 2026-03-14 after Phase 6 planning (3 plans created)*
+*Last updated: 2026-03-14 after Plan 06-01 complete (RED test suite for Phase 6)*
