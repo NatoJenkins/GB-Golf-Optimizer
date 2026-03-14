@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Manual Lock/Exclude
-status: in_progress
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-14T08:28:47.471Z"
+status: executing
+stopped_at: "Checkpoint: human-verify — Task 1 complete, awaiting browser verification of Re-Optimize flow"
+last_updated: "2026-03-14T08:32:06.368Z"
 last_activity: "2026-03-14 — Plan 05-01 complete: card pool serialization helpers and POST /reoptimize route"
 progress:
-  total_phases: 5
-  completed_phases: 4
+  total_phases: 4
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
   percent: 80
 ---
 
@@ -53,6 +53,7 @@ Recent decisions affecting current work:
 - [Phase 04-constraint-foundation]: Session clear before ConstraintSet build so new ConstraintSet always reflects cleared state (order: clear -> build -> optimize)
 - [Phase 05-serialization-and-re-optimize-route]: Card pool stored as JSON in hidden form field rather than Flask session (avoids 4KB cookie limit)
 - [Phase 05-serialization-and-re-optimize-route]: Two button-rendering tests intentionally RED until Plan 02 adds template changes
+- [Phase 05-serialization-and-re-optimize-route]: Re-Optimize form uses | e filter (HTML-entity-escape) for card_pool JSON in attribute context; null-guarded JS listener handles conditional DOM element
 
 ### Pending Todos
 
@@ -64,6 +65,6 @@ None — Phase 4 multi-lineup lock semantics resolved via fires-once tracking.
 
 ## Session Continuity
 
-Last session: 2026-03-14T08:28:47.468Z
-Stopped at: Completed 05-01-PLAN.md
-Resume file: .planning/phases/05-serialization-and-re-optimize-route/05-02-PLAN.md
+Last session: 2026-03-14T08:31:52.319Z
+Stopped at: Checkpoint: human-verify — Task 1 complete, awaiting browser verification of Re-Optimize flow
+Resume file: None
