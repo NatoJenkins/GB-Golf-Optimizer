@@ -52,6 +52,17 @@
   </section>
   {% endif %}
 
+  {% if show_results and card_pool_json %}
+  <input type="hidden" id="card-pool-data" name="card_pool" value="{{ card_pool_json | e }}" />
+  {% endif %}
+
+  {% if show_results and card_pool_json %}
+  <form method="post" action="{{ url_for('main.reoptimize') }}" id="reoptimize-form">
+    <input type="hidden" name="card_pool" value="{{ card_pool_json | e }}" />
+    <button type="submit">Re-Optimize</button>
+  </form>
+  {% endif %}
+
   <!-- Lineup results — rendered only after a successful POST -->
   {% if show_results and result %}
   {% if lock_reset %}
@@ -130,6 +141,12 @@
   document.getElementById("upload-form").addEventListener("submit", function () {
     document.getElementById("loading-overlay").style.display = "flex";
   });
+  const rf = document.getElementById("reoptimize-form");
+  if (rf) {
+    rf.addEventListener("submit", function () {
+      document.getElementById("loading-overlay").style.display = "flex";
+    });
+  }
 </script>
 
 </body>
