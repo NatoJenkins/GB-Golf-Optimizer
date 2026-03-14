@@ -428,3 +428,57 @@ def test_reoptimize_parses_lock_golfer(client):
     with client.session_transaction() as sess:
         golfers = sess.get("locked_golfers", [])
     assert "Player C" in golfers
+
+
+# ---------------------------------------------------------------------------
+# Phase 06: UI-03 — Lock column in lineup output
+# ---------------------------------------------------------------------------
+
+
+def test_lineup_lock_column_header(client):
+    """POST /reoptimize → HTML contains 'Lock' column header in lineup table."""
+    card_pool_json = _build_card_pool_json()
+    response = client.post(
+        "/reoptimize",
+        data={"card_pool": card_pool_json},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "<th>Lock</th>" in html
+
+
+def test_locked_card_shows_lock_icon(client):
+    """POST /reoptimize with lock_card → locked player row shows lock icon."""
+    card_pool_json = _build_card_pool_json()
+    response = client.post(
+        "/reoptimize",
+        data={
+            "card_pool": card_pool_json,
+            "lock_card": "Player A|11000|1.5|Core",
+        },
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "\U0001f512" in html  # 🔒 lock icon
+
+
+def test_nonlocked_card_blank_lock_column(client):
+    """POST /reoptimize with no lock_card fields → lock column present but no lock icon shown.
+
+    The lineup table must have the Lock column header (Plan 03 adds it), but
+    when no cards are locked there should be no lock icon in any row.
+    """
+    card_pool_json = _build_card_pool_json()
+    response = client.post(
+        "/reoptimize",
+        data={"card_pool": card_pool_json},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    # Lock column header must be present (RED until Plan 03 adds it)
+    assert "<th>Lock</th>" in html
+    # No lock icon should appear when nothing is locked
+    assert "\U0001f512" not in html  # 🔒 must NOT appear
