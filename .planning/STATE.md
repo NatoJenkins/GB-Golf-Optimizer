@@ -4,8 +4,8 @@ milestone: v1.1
 milestone_name: Manual Lock/Exclude
 status: completed
 stopped_at: Completed 06-03-PLAN.md
-last_updated: "2026-03-14T18:34:11.293Z"
-last_activity: "2026-03-14 — Plan 06-02 complete: 7 UI-01 tests GREEN; player pool table + checkbox parsing implemented"
+last_updated: "2026-03-14T19:45:26.363Z"
+last_activity: "2026-03-14 — Plan 06-03 complete: 3 UI-03 tests GREEN; Lock column in lineup tables with 🔒 icon via Jinja2 set membership"
 progress:
   total_phases: 4
   completed_phases: 3
