@@ -203,3 +203,115 @@ def test_no_reset_banner_on_get(client):
     assert response.status_code == 200
     html = response.data.decode("utf-8")
     assert "Locks and excludes reset" not in html
+
+
+# ---------------------------------------------------------------------------
+# Phase 05-01: POST /reoptimize tests (UI-02)
+# ---------------------------------------------------------------------------
+
+def _build_card_pool_json():
+    """Build a valid card_pool JSON string matching the format _serialize_cards produces."""
+    import json
+    cards = [
+        {
+            "player": p,
+            "salary": s,
+            "multiplier": m,
+            "collection": "Core",
+            "expires": "2027-12-31",
+            "projected_score": 72.5,
+            "effective_value": round(72.5 * m, 6),
+            "franchise": "False",
+            "rookie": "False",
+        }
+        for p, s, m in _VALID_PLAYERS
+    ]
+    return json.dumps(cards)
+
+
+def test_reoptimize_returns_results(client):
+    """POST /reoptimize with valid card_pool JSON returns 200 with lineup table columns."""
+    card_pool_json = _build_card_pool_json()
+    response = client.post(
+        "/reoptimize",
+        data={"card_pool": card_pool_json},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Player" in html
+    assert "Salary" in html
+    assert "Multiplier" in html
+
+
+def test_reoptimize_layout_identical(client):
+    """POST /reoptimize result HTML contains both contest section headings."""
+    card_pool_json = _build_card_pool_json()
+    response = client.post(
+        "/reoptimize",
+        data={"card_pool": card_pool_json},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "The Tips" in html
+    assert "The Intermediate Tee" in html
+
+
+def test_reoptimize_missing_card_pool(client):
+    """POST /reoptimize with no card_pool field returns 200 with session-expired message."""
+    response = client.post(
+        "/reoptimize",
+        data={},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Session expired" in html
+
+
+def test_reoptimize_malformed_card_pool(client):
+    """POST /reoptimize with malformed card_pool returns 200 with session-expired message."""
+    response = client.post(
+        "/reoptimize",
+        data={"card_pool": "not-valid-json"},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Session expired" in html
+
+
+def test_reoptimize_uses_session_constraints(client):
+    """POST /reoptimize with locked_cards in session returns 200 without crashing."""
+    card_pool_json = _build_card_pool_json()
+    with client.session_transaction() as sess:
+        sess["locked_cards"] = [["Player A", 11000, 1.5, "Core"]]
+    response = client.post(
+        "/reoptimize",
+        data={"card_pool": card_pool_json},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+
+
+def test_reoptimize_button_rendered(client):
+    """After a successful upload POST, the response HTML contains id='reoptimize-form'.
+
+    Remains RED until Plan 02 adds the template changes.
+    """
+    response = _post_csvs(client, SAMPLE_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'id="reoptimize-form"' in html
+
+
+def test_reoptimize_button_absent_on_get(client):
+    """GET / response HTML does NOT contain id='reoptimize-form'.
+
+    Remains RED until Plan 02 adds the template changes.
+    """
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'id="reoptimize-form"' not in html
