@@ -20,6 +20,10 @@ def create_app() -> Flask:
     # Max upload size: 5 MB
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
+    # Secret key for Flask cookie session (lock/exclude state)
+    # In production this should come from an environment variable.
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
+
     # Resolve contest_config.json relative to this file (2 levels up = project root)
     config_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "..", "contest_config.json")

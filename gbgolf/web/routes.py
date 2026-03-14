@@ -4,10 +4,11 @@ Flask blueprint: index route handling file uploads and lineup generation.
 import os
 import tempfile
 
-from flask import Blueprint, current_app, render_template, request
+from flask import Blueprint, current_app, render_template, request, session
 
 from gbgolf.data import validate_pipeline
 from gbgolf.optimizer import optimize
+from gbgolf.optimizer.constraints import ConstraintSet, check_conflicts, check_feasibility
 
 bp = Blueprint("main", __name__)
 
@@ -27,6 +28,24 @@ def index():
     if not projections_file or projections_file.filename == "":
         return render_template("index.html", error="Projections file is required.")
 
+    # CLEAR lock/exclude session keys on file upload (UI-04)
+    # Unconditional — no hash comparison. Order: clear -> build -> optimize.
+    lock_reset = False
+    if request.files.get("roster") or request.files.get("projections"):
+        session.pop("locked_cards", None)
+        session.pop("locked_golfers", None)
+        session.pop("excluded_cards", None)
+        session.pop("excluded_players", None)
+        lock_reset = True
+
+    # BUILD ConstraintSet from session (tuples re-cast from JSON lists after clear)
+    constraints = ConstraintSet(
+        locked_cards=[tuple(k) for k in session.get("locked_cards", [])],
+        locked_golfers=session.get("locked_golfers", []),
+        excluded_cards=[tuple(k) for k in session.get("excluded_cards", [])],
+        excluded_players=session.get("excluded_players", []),
+    )
+
     roster_tmp = None
     projections_tmp = None
     try:
@@ -43,13 +62,14 @@ def index():
         # Files are now closed; safe to read on Windows
         config_path = current_app.config["CONFIG_PATH"]
         validation = validate_pipeline(roster_tmp, projections_tmp, config_path)
-        result = optimize(validation.valid_cards, current_app.config["CONTESTS"])
+        result = optimize(validation.valid_cards, current_app.config["CONTESTS"], constraints=constraints)
 
         return render_template(
             "index.html",
             validation=validation,
             result=result,
             show_results=True,
+            lock_reset=lock_reset,
         )
 
     except ValueError as exc:
