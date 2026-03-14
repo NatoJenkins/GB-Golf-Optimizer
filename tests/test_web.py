@@ -175,3 +175,31 @@ def test_exclusion_report_content(client):
     html = response.data.decode("utf-8")
     assert "Unmatched Player" in html
     assert "no projection found" in html
+
+
+def test_session_cleared_on_upload(client):
+    """POST with files clears lock/exclude session keys unconditionally."""
+    with client.session_transaction() as sess:
+        sess["locked_cards"] = [["Player A", 11000, 1.5, "Core"]]
+        sess["locked_golfers"] = ["Player A"]
+    response = _post_csvs(client, SAMPLE_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
+    assert response.status_code == 200
+    with client.session_transaction() as sess:
+        assert "locked_cards" not in sess or sess.get("locked_cards") == []
+        assert "locked_golfers" not in sess or sess.get("locked_golfers") == []
+
+
+def test_reset_banner_shown(client):
+    """After a file-upload POST, the reset banner appears in the HTML response."""
+    response = _post_csvs(client, SAMPLE_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Locks and excludes reset" in html
+
+
+def test_no_reset_banner_on_get(client):
+    """GET request to index does not show the reset banner."""
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Locks and excludes reset" not in html
