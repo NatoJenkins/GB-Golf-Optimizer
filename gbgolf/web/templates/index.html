@@ -54,6 +54,11 @@
 
   <!-- Lineup results — rendered only after a successful POST -->
   {% if show_results and result %}
+  {% if lock_reset %}
+  <div class="reset-banner" style="background:#fef3c7;border:1px solid #d97706;color:#92400e;padding:0.75rem 1rem;margin-bottom:1rem;border-radius:4px;">
+    Locks and excludes reset for new upload
+  </div>
+  {% endif %}
   {% set contest_order = ["The Tips", "The Intermediate Tee"] %}
   {% for contest_name in contest_order %}
   <section class="contest-section">
