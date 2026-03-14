@@ -13,7 +13,7 @@ This roadmap delivers a working fantasy golf lineup optimizer in three phases, o
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data Foundation** - CSV parsing, card data model, projections merging, contest config, and data validation (completed 2026-03-13)
-- [ ] **Phase 2: Optimization Engine** - ILP lineup generation with salary, collection, and card exclusion constraints
+- [x] **Phase 2: Optimization Engine** - ILP lineup generation with salary, collection, and card exclusion constraints (completed 2026-03-14)
 - [ ] **Phase 3: Web Application and Deployment** - FastAPI endpoints, lineup display UI, and VPS deployment
 
 ## Phase Details
@@ -74,7 +74,7 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 4/4 | Complete   | 2026-03-13 |
-| 2. Optimization Engine | 2/3 | In Progress|  |
+| 2. Optimization Engine | 3/3 | Complete   | 2026-03-14 |
 | 3. Web Application and Deployment | 0/0 | Not started | - |
 
 ---
