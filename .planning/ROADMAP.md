@@ -83,7 +83,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. User can clear all active locks and excludes with a single button, resetting the state without re-uploading CSVs
   2. A count of active locks and excludes is visible above the Optimize button so users know their current constraint state at a glance
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Test scaffold (5 RED tests) + constraint count display + Clear All server-side tests (UI-05, UI-06)
+- [ ] 07-02-PLAN.md — Sortable player pool columns with data-sort attributes and JS sort functions
 
 ## Progress
 
@@ -94,9 +98,9 @@ Plans:
 | 3. Web Application and Deployment | v1.0 | 3/3 | Complete | 2026-03-13 |
 | 4. Constraint Foundation | v1.1 | 3/3 | Complete | 2026-03-14 |
 | 5. Serialization and Re-Optimize Route | v1.1 | 2/2 | Complete | 2026-03-14 |
-| 6. Lock/Exclude UI | 3/3 | Complete   | 2026-03-14 | - |
-| 7. Polish | v1.1 | 0/? | Not started | - |
+| 6. Lock/Exclude UI | v1.1 | 3/3 | Complete | 2026-03-14 |
+| 7. Polish | v1.1 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-03-13*
-*Last updated: 2026-03-14 after Plan 06-01 complete (RED test suite for Phase 6)*
+*Last updated: 2026-03-14 after Phase 7 planning (2 plans: constraint count + sortable columns)*
