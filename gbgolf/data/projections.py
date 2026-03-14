@@ -19,7 +19,7 @@ def parse_projections_csv(path: str) -> tuple[dict[str, float], list[str]]:
         name_col = None
         if reader.fieldnames:
             fieldnames_lower = {col.lower(): col for col in reader.fieldnames}
-            for candidate in ("projected_score", "score", "projection"):
+            for candidate in ("projected_score", "score", "projection", "projectedpoints"):
                 if candidate in fieldnames_lower:
                     score_col = fieldnames_lower[candidate]
                     break
@@ -31,7 +31,7 @@ def parse_projections_csv(path: str) -> tuple[dict[str, float], list[str]]:
         if not score_col or not name_col:
             raise ValueError(
                 "Projections CSV must have a player name column (player/name/golfer) "
-                "and a score column (projected_score/score/projection)"
+                "and a score column (projected_score/score/projection/projectedpoints)"
             )
 
         for i, row in enumerate(reader, start=2):  # start=2: row 1 is headers
