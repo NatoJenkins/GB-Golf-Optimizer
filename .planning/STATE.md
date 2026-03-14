@@ -4,7 +4,7 @@ milestone: v1.1
 milestone_name: Manual Lock/Exclude
 status: completed
 stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-03-14T20:21:48.608Z"
+last_updated: "2026-03-14T20:24:39.646Z"
 last_activity: "2026-03-14 — Plan 07-01 complete: UI-05/UI-06 constraint count div + updateConstraintCount() JS wired; 4 new tests GREEN, sort headers RED scaffold for Plan 02"
 progress:
   total_phases: 4
