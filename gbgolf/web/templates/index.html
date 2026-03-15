@@ -159,7 +159,7 @@
       <tbody>
         {% for card in lineup.cards %}
         <tr>
-          <td>{% if locked_card_keys and (card.player, card.salary, card.multiplier, card.collection) in locked_card_keys %}🔒{% endif %}</td>
+          <td>{% if (locked_card_keys and (card.player, card.salary, card.multiplier, card.collection) in locked_card_keys) or (locked_golfer_set and card.player in locked_golfer_set) %}🔒{% endif %}</td>
           <td>{{ card.player }}</td>
           <td>{{ card.collection }}</td>
           <td>${{ card.salary }}</td>
