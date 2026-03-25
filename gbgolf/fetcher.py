@@ -1,11 +1,17 @@
 """
-DataGolf fetcher module.
+DataGolf projection fetcher for GB Golf Optimizer.
 
 Fetches player projections from the DataGolf fantasy-projection-defaults API,
-normalizes names, and writes them to the fetches + projections tables using
-an atomic DELETE CASCADE + INSERT pattern.
+normalizes player names, and writes them to the fetches + projections tables.
 
-Exports: parse_datagolf_name, write_fetch_log, write_projections, run_fetch
+Cron schedule for Phase 11 VPS deployment:
+    # Tuesday and Wednesday at 8:00 AM Eastern Time
+    # Winter (EST = UTC-5): 0 13 * * 2,3
+    # Summer (EDT = UTC-4): 0 12 * * 2,3
+    # Verify VPS timezone with `timedatectl` before setting.
+    # Example crontab entry (winter):
+    #   0 13 * * 2,3 cd /var/www/gbgolf && FLASK_APP=gbgolf.web:create_app .venv/bin/flask fetch-projections
+    # The .env file must be in the project root with DATAGOLF_API_KEY set.
 """
 import os
 from datetime import datetime, UTC

@@ -342,3 +342,32 @@ def test_run_fetch_normalizes_names(app, db_session, monkeypatch, tmp_path):
     ).mappings().fetchone()
     assert row is not None
     assert row["player_name"] == "Scottie Scheffler"
+
+
+# ---------------------------------------------------------------------------
+# CLI command tests (FETCH-02)
+# ---------------------------------------------------------------------------
+
+def test_cli_command_registered(app):
+    """FETCH-02: flask fetch-projections CLI command exists."""
+    runner = app.test_cli_runner()
+    # --help should work without making an API call
+    result = runner.invoke(args=["fetch-projections", "--help"])
+    assert result.exit_code == 0
+    assert "Fetch player projections" in result.output
+
+
+def test_cli_command_invokes_run_fetch(app, monkeypatch):
+    """FETCH-01/02: CLI command calls run_fetch and echoes result."""
+    called = {}
+
+    def mock_run_fetch(log_dir="logs"):
+        called["invoked"] = True
+        return "OK | Test Tournament | 50 players | fetch_id=1"
+
+    monkeypatch.setattr("gbgolf.fetcher.run_fetch", mock_run_fetch)
+    runner = app.test_cli_runner()
+    result = runner.invoke(args=["fetch-projections"])
+    assert result.exit_code == 0
+    assert called.get("invoked") is True
+    assert "OK | Test Tournament" in result.output

@@ -3,6 +3,7 @@ Flask application factory for the GB Golf Optimizer web layer.
 """
 import os
 
+import click
 from dotenv import load_dotenv
 from flask import Flask
 from flask_migrate import Migrate
@@ -57,5 +58,12 @@ def create_app() -> Flask:
 
     from gbgolf.web.routes import bp
     app.register_blueprint(bp)
+
+    @app.cli.command("fetch-projections")
+    def fetch_projections_cmd():
+        """Fetch player projections from DataGolf API and store in database."""
+        from gbgolf.fetcher import run_fetch
+        result = run_fetch()
+        click.echo(result)
 
     return app
