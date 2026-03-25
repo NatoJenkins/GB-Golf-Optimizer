@@ -13,7 +13,7 @@ Requirements for the Automated Projection Fetching milestone.
 - [ ] **FETCH-02**: A cron job on the VPS triggers the fetcher automatically on Tuesday and Wednesday mornings
 - [ ] **FETCH-03**: Fetch activity (player count, tournament name, timestamp, any errors) is written to a log file on the VPS
 - [ ] **FETCH-04**: Existing stored projections are preserved if the API returns an error or fewer than a minimum viable player count
-- [ ] **FETCH-05**: Fetched projections are stored with player name, projected score, tournament name, and fetch timestamp per record
+- [x] **FETCH-05**: Fetched projections are stored with player name, projected score, tournament name, and fetch timestamp per record
 - [ ] **FETCH-06**: DataGolf player names ("Last, First" format) are normalized to "First Last" before storage to match GameBlazers roster names
 
 ### Projection Source (SRC)
@@ -96,7 +96,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FETCH-02 | Phase 9 | Pending |
 | FETCH-03 | Phase 9 | Pending |
 | FETCH-04 | Phase 9 | Pending |
-| FETCH-05 | Phase 8 | Pending |
+| FETCH-05 | Phase 8 | Complete |
 | FETCH-06 | Phase 9 | Pending |
 | SRC-01 | Phase 10 | Pending |
 | SRC-02 | Phase 10 | Pending |
