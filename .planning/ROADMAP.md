@@ -49,7 +49,9 @@ See: `.planning/milestones/v1.0-ROADMAP.md` for full phase details.
   2. A `projections` table exists with columns for player name, projected score, tournament name, and fetch timestamp
   3. The database connection works correctly with Gunicorn's forked worker model (each worker gets its own connection pool)
   4. DATABASE_URL and DATAGOLF_API_KEY are loaded from a `.env` file that is not committed to version control
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 08-01-PLAN.md — Dependencies, db.py table definitions, app factory wiring, Flask-Migrate init, DB tests
 
 ### Phase 9: DataGolf Fetcher
 **Goal**: The system automatically fetches projections from the DataGolf API and stores them safely in the database on a cron schedule
@@ -101,11 +103,11 @@ See: `.planning/milestones/v1.0-ROADMAP.md` for full phase details.
 | 5. Serialization and Re-Optimize Route | v1.1 | 2/2 | Complete | 2026-03-14 |
 | 6. Lock/Exclude UI | v1.1 | 3/3 | Complete | 2026-03-14 |
 | 7. Polish | v1.1 | 2/2 | Complete | 2026-03-14 |
-| 8. Database Foundation | v1.2 | 0/? | Not started | - |
+| 8. Database Foundation | v1.2 | 0/1 | Planning | - |
 | 9. DataGolf Fetcher | v1.2 | 0/? | Not started | - |
 | 10. Projection Source Selector | v1.2 | 0/? | Not started | - |
 | 11. Deploy and Verification | v1.2 | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-03-13*
-*Last updated: 2026-03-25 after v1.2 milestone roadmap creation (phases 8-11)*
+*Last updated: 2026-03-25 after Phase 8 planning (1 plan created)*
