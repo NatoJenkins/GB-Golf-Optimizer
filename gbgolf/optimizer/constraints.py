@@ -17,7 +17,6 @@ in optimize() (engine pre-filter). They are NOT checked in check_feasibility.
 """
 from __future__ import annotations
 
-from collections import Counter
 from dataclasses import dataclass, field
 
 from gbgolf.data.config import ContestConfig
@@ -104,10 +103,15 @@ def check_feasibility(
     valid_cards: list,
     config: ContestConfig,
 ) -> PreSolveError | None:
-    """Check whether locked cards violate salary or collection constraints.
+    """Check whether any individual locked card exceeds the salary cap.
 
-    Only inspects locked_cards (card-level locks). Golfer locks, excludes,
-    and player-level excludes are handled by the engine at solve time.
+    Only inspects locked_cards (card-level locks). Each locked card is placed
+    in its own optimal lineup slot, so aggregate salary checks across multiple
+    locked cards are not applicable. The only provably infeasible case before
+    solving is a single card whose salary already exceeds the salary cap.
+
+    Golfer locks, excludes, and player-level excludes are handled by the
+    engine at solve time.
 
     Silently ignores locked card keys that are not present in valid_cards
     (they will simply not fire in the ILP).
@@ -121,41 +125,22 @@ def check_feasibility(
         config: ContestConfig — salary bounds and collection limits
 
     Returns:
-        PreSolveError if locked cards provably violate constraints, else None.
+        PreSolveError if a locked card's salary exceeds the cap, else None.
     """
-    # Build lookup map from composite key -> Card
     card_map = {
         (c.player, c.salary, c.multiplier, c.collection): c
         for c in valid_cards
     }
 
-    # Only consider locked cards that actually exist in the pool
     locked = [card_map[k] for k in constraints.locked_cards if k in card_map]
 
-    if not locked:
-        return None
-
-    # Check 1: salary sum of locked cards exceeds salary cap
-    locked_salary = sum(c.salary for c in locked)
-    if locked_salary > config.salary_max:
-        return PreSolveError(
-            message=(
-                f"Locked cards total ${locked_salary:,}. "
-                f"Salary cap is ${config.salary_max:,}. "
-                "Remove locked cards to proceed."
-            )
-        )
-
-    # Check 2: locked cards in any collection exceed that collection's limit
-    collection_counts = Counter(c.collection for c in locked)
-    for coll, count in collection_counts.items():
-        limit = config.collection_limits.get(coll)
-        if limit is not None and count > limit:
+    for c in locked:
+        if c.salary > config.salary_max:
             return PreSolveError(
                 message=(
-                    f"Locked cards include {count} '{coll}' cards but the "
-                    f"limit is {limit}. Remove {count - limit} locked "
-                    f"'{coll}' card(s) to proceed."
+                    f"Locked card for {c.player} costs ${c.salary:,}, which "
+                    f"exceeds the salary cap of ${config.salary_max:,}. "
+                    "Remove the lock or choose a cheaper card to proceed."
                 )
             )
 

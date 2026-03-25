@@ -109,45 +109,40 @@ def test_golfer_lock_fires_once():
 # Tests: Pre-solve salary/collection feasibility (LOCK-03)
 # ---------------------------------------------------------------------------
 
-def test_presolve_salary_exceeded():
-    """LOCK-03: locked cards with salary sum > salary_max returns PreSolveError."""
-    card_a = make_card("Big Earner A", 40000, 1.0, "Core", 70.0)
-    card_b = make_card("Big Earner B", 30000, 1.0, "Core", 68.0)
-    key_a = ("Big Earner A", 40000, 1.0, "Core")
-    key_b = ("Big Earner B", 30000, 1.0, "Core")
-    cs = ConstraintSet(locked_cards=[key_a, key_b])
-    result = check_feasibility(cs, [card_a, card_b], TIPS_CONFIG)
+def test_presolve_single_card_exceeds_cap():
+    """LOCK-03: a single locked card whose salary > salary_max returns PreSolveError."""
+    over_cap = make_card("Over Cap Player", 70000, 1.0, "Core", 80.0)
+    key = ("Over Cap Player", 70000, 1.0, "Core")
+    cs = ConstraintSet(locked_cards=[key])
+    result = check_feasibility(cs, [over_cap], TIPS_CONFIG)
     assert isinstance(result, PreSolveError)
     assert "70,000" in result.message
     assert "64,000" in result.message
 
 
-def test_presolve_collection_exceeded():
-    """LOCK-03: four locked Weekly Collection cards exceeds limit of 3; returns PreSolveError."""
-    cards = [
-        make_card(f"Weekly Player {i}", 8000, 1.0, "Weekly Collection", 60.0)
-        for i in range(4)
-    ]
-    keys = [(f"Weekly Player {i}", 8000, 1.0, "Weekly Collection") for i in range(4)]
-    cs = ConstraintSet(locked_cards=keys)
-    result = check_feasibility(cs, cards, TIPS_CONFIG)
-    assert isinstance(result, PreSolveError)
-    assert "4" in result.message
-    assert "Weekly Collection" in result.message
-    assert "3" in result.message
+def test_presolve_aggregate_salary_not_flagged():
+    """LOCK-03: two locked cards whose salaries sum above cap are not a pre-solve error.
 
-
-def test_presolve_message_content():
-    """LOCK-03: salary-exceeded error message is non-empty string containing '$'."""
+    Each card gets its own lineup slot, so aggregate salary is not a constraint.
+    The ILP solver handles infeasibility at solve time if needed.
+    """
     card_a = make_card("Big Earner A", 40000, 1.0, "Core", 70.0)
     card_b = make_card("Big Earner B", 30000, 1.0, "Core", 68.0)
     key_a = ("Big Earner A", 40000, 1.0, "Core")
     key_b = ("Big Earner B", 30000, 1.0, "Core")
     cs = ConstraintSet(locked_cards=[key_a, key_b])
     result = check_feasibility(cs, [card_a, card_b], TIPS_CONFIG)
+    assert result is None  # not a pre-solve error; handled by the ILP solver
+
+
+def test_presolve_message_content():
+    """LOCK-03: salary-exceeded error message is a non-empty string containing '$'."""
+    over_cap = make_card("Over Cap Player", 70000, 1.0, "Core", 80.0)
+    key = ("Over Cap Player", 70000, 1.0, "Core")
+    cs = ConstraintSet(locked_cards=[key])
+    result = check_feasibility(cs, [over_cap], TIPS_CONFIG)
     assert isinstance(result, PreSolveError)
-    assert result.message  # non-empty
-    assert result.message != ""
+    assert result.message
     assert "$" in result.message
 
 

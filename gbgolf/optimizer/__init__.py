@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from gbgolf.data.models import Card
 from gbgolf.optimizer.engine import _solve_one_lineup
 from gbgolf.optimizer.constraints import ConstraintSet, check_conflicts, check_feasibility
+from gbgolf.data.config import ContestConfig
 
 
 @dataclass
@@ -33,6 +34,62 @@ def _card_key(c) -> tuple:
     return (c.player, c.salary, c.multiplier, c.collection)
 
 
+def _find_best_replacement(
+    contest_lineups: list,
+    valid_cards: list,
+    used_card_keys: set,
+    excluded_card_keys: set,
+    excluded_player_names: set,
+    config: ContestConfig,
+    locked_card_keys: set | None = None,
+    locked_golfer_names: set | None = None,
+) -> tuple[int, list | None]:
+    """Find the lineup slot where forcing a lock produces the highest projected score.
+
+    For each existing lineup, temporarily reclaims its cards back into the pool,
+    solves with the lock constraint, and records the resulting lineup's total
+    effective value. Returns the index and cards of the best replacement found,
+    or (-1, None) if no lineup slot can accommodate the lock.
+
+    The used_card_keys set is temporarily mutated during the search but is
+    fully restored before returning.
+    """
+    best_ev = -1.0
+    best_idx = -1
+    best_result = None
+
+    for i, lineup in enumerate(contest_lineups):
+        # Temporarily return this lineup's cards to the available pool
+        for card in lineup.cards:
+            used_card_keys.discard(_card_key(card))
+
+        available = [
+            c for c in valid_cards
+            if _card_key(c) not in used_card_keys
+            and _card_key(c) not in excluded_card_keys
+            and c.player not in excluded_player_names
+        ]
+
+        result = _solve_one_lineup(
+            available, config,
+            locked_card_keys=locked_card_keys,
+            locked_golfer_names=locked_golfer_names,
+        )
+
+        if result is not None:
+            ev = sum(c.effective_value or 0.0 for c in result)
+            if ev > best_ev:
+                best_ev = ev
+                best_idx = i
+                best_result = result
+
+        # Restore this lineup's cards before trying the next slot
+        for card in lineup.cards:
+            used_card_keys.add(_card_key(card))
+
+    return best_idx, best_result
+
+
 def optimize(
     valid_cards: list,
     contests: list,
@@ -50,12 +107,16 @@ def optimize(
       error message in infeasibility_notices.
     - Excluded cards and excluded players are pre-filtered from the available
       pool each iteration.
-    - Card locks fire once: after a locked card is placed, it's removed from
-      the active lock set (the card is consumed by normal used_card_keys logic).
-    - Golfer locks fire once: after a golfer is placed in any lineup, the lock
-      is removed from unsatisfied_golfer_locks so subsequent lineups are not
-      forced to include them (preventing infeasibility when the golfer has only
-      one card).
+    - Phase 1 generates all lineups with NO lock constraints (pure optimal).
+      Locks that happen to be satisfied naturally require no further action.
+    - Phase 2 processes any locks not satisfied in Phase 1. For each such lock,
+      every existing lineup slot is tried as a candidate replacement: the lineup
+      is temporarily reclaimed, a lock-constrained solve is run, and the slot
+      that produces the highest projected score wins. This ensures each lock is
+      placed where it contributes most to lineup quality rather than being
+      forced into the first lineup alongside all other locks.
+    - A lock fires exactly once (minimum one appearance). Subsequent lineups are
+      unconstrained and may include locked players again if optimal.
 
     Args:
         valid_cards: list[Card] from the validation pipeline
@@ -90,12 +151,6 @@ def optimize(
     excluded_card_keys: set = set(constraints.excluded_cards)
     excluded_player_names: set = set(constraints.excluded_players)
 
-    # Golfer locks: fires once globally — discard after first placement
-    unsatisfied_golfer_locks: set = set(constraints.locked_golfers)
-
-    # Card locks: fires once per card — discard after first placement
-    active_card_locks: set = set(constraints.locked_cards)
-
     lineups: dict = {}
     infeasibility_notices: list = []
     used_card_keys: set = set()
@@ -103,38 +158,63 @@ def optimize(
     for config in contests:
         contest_lineups: list = []
 
+        # Phase 1: generate all lineups with no lock constraints (pure optimal)
         for entry_num in range(config.max_entries):
-            # Exclude: cards already used, excluded by key, excluded by player name
             available = [
                 c for c in valid_cards
                 if _card_key(c) not in used_card_keys
                 and _card_key(c) not in excluded_card_keys
                 and c.player not in excluded_player_names
             ]
-
-            result = _solve_one_lineup(
-                available,
-                config,
-                locked_card_keys=active_card_locks if active_card_locks else None,
-                locked_golfer_names=unsatisfied_golfer_locks if unsatisfied_golfer_locks else None,
-            )
-
+            result = _solve_one_lineup(available, config)
             if result is None:
-                notice = (
-                    f"{config.name}: lineup {entry_num + 1} of {config.max_entries} "
+                slot = len(contest_lineups) + 1
+                infeasibility_notices.append(
+                    f"{config.name}: lineup {slot} of {config.max_entries} "
                     f"could not be built (infeasible)"
                 )
-                infeasibility_notices.append(notice)
             else:
-                # Mark these cards as used (composite key deduplication)
                 for card in result:
-                    key = _card_key(card)
-                    used_card_keys.add(key)
-                    # Golfer lock fires once: discard after placement
-                    unsatisfied_golfer_locks.discard(card.player)
-                    # Card lock fires once: discard after placement
-                    active_card_locks.discard(key)
+                    used_card_keys.add(_card_key(card))
                 contest_lineups.append(Lineup(contest=config.name, cards=result))
+
+        # Phase 2: satisfy any locks not naturally placed in Phase 1.
+        # For each unsatisfied lock, find the lineup slot where forcing the lock
+        # yields the highest total projected score, then replace that slot.
+        def _satisfy_lock(locked_card_keys=None, locked_golfer_names=None, label=""):
+            if not contest_lineups:
+                infeasibility_notices.append(
+                    f"{config.name}: could not satisfy {label} (no lineups available)"
+                )
+                return
+            idx, best_result = _find_best_replacement(
+                contest_lineups, valid_cards, used_card_keys,
+                excluded_card_keys, excluded_player_names, config,
+                locked_card_keys=locked_card_keys,
+                locked_golfer_names=locked_golfer_names,
+            )
+            if best_result is None:
+                infeasibility_notices.append(
+                    f"{config.name}: could not build lineup with {label} (infeasible)"
+                )
+                return
+            # Replace the chosen lineup slot with the lock-constrained result
+            old_lineup = contest_lineups[idx]
+            for card in old_lineup.cards:
+                used_card_keys.discard(_card_key(card))
+            for card in best_result:
+                used_card_keys.add(_card_key(card))
+            contest_lineups[idx] = Lineup(contest=config.name, cards=best_result)
+
+        for card_key in constraints.locked_cards:
+            if any(_card_key(c) == card_key for lu in contest_lineups for c in lu.cards):
+                continue  # already satisfied naturally
+            _satisfy_lock(locked_card_keys={card_key}, label=f"locked card for '{card_key[0]}'")
+
+        for golfer_name in constraints.locked_golfers:
+            if any(c.player == golfer_name for lu in contest_lineups for c in lu.cards):
+                continue  # already satisfied naturally
+            _satisfy_lock(locked_golfer_names={golfer_name}, label=f"locked golfer '{golfer_name}'")
 
         lineups[config.name] = contest_lineups
 

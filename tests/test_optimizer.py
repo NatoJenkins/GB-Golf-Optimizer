@@ -247,21 +247,30 @@ def test_card_lock_forces_card_into_lineup():
     )
 
 
-def test_golfer_lock_fires_once():
-    """Golfer lock fires in lineup 1 only; lineup 2 completes without infeasibility."""
-    # Use a small pool where each player has exactly one card
-    # Lock Jon Rahm — he has one card at salary 8500
+def test_golfer_lock_satisfied_in_some_lineup():
+    """Locked golfer appears in at least one lineup; all slots fill and no infeasibility."""
     cs = ConstraintSet(locked_golfers=["Jon Rahm"])
     result = optimize(TIPS_CARDS, TIPS_CONFIG, constraints=cs)
-    # Jon Rahm should appear in lineup 1
-    lineup_1_players = [c.player for c in result.lineups["The Tips"][0].cards]
-    assert "Jon Rahm" in lineup_1_players, (
-        f"Jon Rahm not in lineup 1: {lineup_1_players}"
+    all_players = [c.player for lu in result.lineups["The Tips"] for c in lu.cards]
+    assert "Jon Rahm" in all_players, (
+        f"Jon Rahm not found in any lineup: {all_players}"
     )
-    # Lineup 2 should also build successfully (no infeasibility from golfer lock)
-    assert len(result.lineups["The Tips"]) >= 2, (
-        "Expected at least 2 lineups; golfer lock should not cause infeasibility in lineup 2"
+    assert len(result.lineups["The Tips"]) == 3, (
+        "Expected 3 lineups; golfer lock should not reduce lineup count"
     )
+    assert not result.infeasibility_notices, (
+        f"Unexpected infeasibility notices: {result.infeasibility_notices}"
+    )
+
+
+def test_multiple_golfer_locks_all_satisfied():
+    """Multiple locked golfers each appear in at least one lineup with no infeasibility."""
+    cs = ConstraintSet(locked_golfers=["Scottie Scheffler", "Rory McIlroy"])
+    result = optimize(TIPS_CARDS, TIPS_CONFIG, constraints=cs)
+    all_players = [c.player for lu in result.lineups["The Tips"] for c in lu.cards]
+    assert "Scottie Scheffler" in all_players, "Scheffler not found in any lineup"
+    assert "Rory McIlroy" in all_players, "McIlroy not found in any lineup"
+    assert len(result.lineups["The Tips"]) == 3
     assert not result.infeasibility_notices, (
         f"Unexpected infeasibility notices: {result.infeasibility_notices}"
     )
@@ -309,9 +318,27 @@ def test_conflict_returns_error_not_lineups():
     assert len(result.infeasibility_notices) > 0, "Expected infeasibility notice for conflict"
 
 
-def test_presolve_salary_error_returns_no_lineups():
-    """Locking two cards summing above salary_max returns infeasibility_notices with no lineups."""
-    # Two cards with salaries 40000 + 30000 = 70000 > 64000 (salary_max)
+def test_presolve_single_card_exceeds_cap_returns_no_lineups():
+    """A locked card whose salary alone exceeds salary_max triggers a pre-solve error."""
+    over_cap = make_card("Over Cap Player", 70000, 1.0, "Core", 80.0)
+    all_cards = TIPS_CARDS + [over_cap]
+    key = ("Over Cap Player", 70000, 1.0, "Core")
+    cs = ConstraintSet(locked_cards=[key])
+    result = optimize(all_cards, TIPS_CONFIG, constraints=cs)
+    for contest_lineups in result.lineups.values():
+        assert contest_lineups == [], (
+            f"Expected no lineups on pre-solve error, got: {contest_lineups}"
+        )
+    assert len(result.infeasibility_notices) > 0
+    notice_text = " ".join(result.infeasibility_notices)
+    assert "70,000" in notice_text or "salary" in notice_text.lower(), (
+        f"Expected salary info in notice: {notice_text}"
+    )
+
+
+def test_infeasible_card_locks_generate_notices_but_not_block_free_lineups():
+    """Card locks too expensive to fit a valid lineup generate notices; other slots still build."""
+    # $40k card: needs 5 more players at ~$8k each = $80k total > $64k cap — infeasible
     card_a = make_card("Big Contract A", 40000, 1.0, "Core", 80.0)
     card_b = make_card("Big Contract B", 30000, 1.0, "Core", 75.0)
     all_cards = TIPS_CARDS + [card_a, card_b]
@@ -319,14 +346,9 @@ def test_presolve_salary_error_returns_no_lineups():
     key_b = ("Big Contract B", 30000, 1.0, "Core")
     cs = ConstraintSet(locked_cards=[key_a, key_b])
     result = optimize(all_cards, TIPS_CONFIG, constraints=cs)
-    # All contests should have empty lineup lists
-    for contest_lineups in result.lineups.values():
-        assert contest_lineups == [], (
-            f"Expected no lineups on salary pre-solve error, got: {contest_lineups}"
-        )
-    assert len(result.infeasibility_notices) > 0, "Expected salary infeasibility notice"
-    # Notice should mention the salary amounts
-    notice_text = " ".join(result.infeasibility_notices)
-    assert "70,000" in notice_text or "salary" in notice_text.lower(), (
-        f"Expected salary info in notice: {notice_text}"
+    assert len(result.infeasibility_notices) >= 2, (
+        f"Expected at least 2 infeasibility notices, got: {result.infeasibility_notices}"
+    )
+    assert len(result.lineups["The Tips"]) == 3, (
+        "Free lineup slots should still be built when locked cards are individually infeasible"
     )
