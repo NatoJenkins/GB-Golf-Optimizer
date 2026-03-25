@@ -4,8 +4,8 @@
 
 set -e
 
-REMOTE="root@193.46.198.60"
-REMOTE_PATH="/root/GBGolfOptimizer"
+REMOTE="deploy@193.46.198.60"
+REMOTE_PATH="/opt/GBGolfOptimizer"
 LOCAL_PATH="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "Syncing files..."
