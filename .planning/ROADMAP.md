@@ -34,7 +34,7 @@ See: `.planning/milestones/v1.0-ROADMAP.md` for full phase details.
 **Milestone Goal:** Automatically fetch DFS golf projections from the DataGolf API on a schedule and store them in PostgreSQL, letting users choose between DataGolf projections or a manually uploaded CSV before optimizing.
 
 - [x] **Phase 8: Database Foundation** — PostgreSQL setup, Flask-SQLAlchemy integration, projections table schema
-- [ ] **Phase 9: DataGolf Fetcher** — API client, name normalization, transactional upsert, cron scheduling, fetch logging
+- [x] **Phase 9: DataGolf Fetcher** — API client, name normalization, transactional upsert, cron scheduling, fetch logging (completed 2026-03-25)
 - [ ] **Phase 10: Projection Source Selector** — UI source picker, DB projection loading, staleness display, empty-state handling, unmatched warnings
 - [ ] **Phase 11: Deploy and Verification** — Production deployment of PostgreSQL + cron + source selector, end-to-end verification on VPS
 
@@ -63,7 +63,7 @@ Plans:
   3. If the API returns an error or fewer than a minimum viable player count, existing stored projections are preserved (not deleted or overwritten)
   4. A cron job on the VPS triggers the fetcher automatically on Tuesday and Wednesday mornings, with fetch activity (player count, tournament name, timestamp, errors) written to a log file
   5. Running the fetcher multiple times for the same event is idempotent — it replaces stale data cleanly without duplicating rows
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 09-01-PLAN.md — httpx dependency, API discovery call, fetcher module (Pydantic model, name normalization, DB writes, fetch orchestration, logging), comprehensive test suite
 - [ ] 09-02-PLAN.md — Flask CLI command wiring, cron documentation, live end-to-end fetch verification
@@ -105,7 +105,7 @@ Plans:
 | 6. Lock/Exclude UI | v1.1 | 3/3 | Complete | 2026-03-14 |
 | 7. Polish | v1.1 | 2/2 | Complete | 2026-03-14 |
 | 8. Database Foundation | v1.2 | 1/1 | Complete | 2026-03-25 |
-| 9. DataGolf Fetcher | v1.2 | 0/2 | Planned | - |
+| 9. DataGolf Fetcher | 2/2 | Complete   | 2026-03-25 | - |
 | 10. Projection Source Selector | v1.2 | 0/? | Not started | - |
 | 11. Deploy and Verification | v1.2 | 0/? | Not started | - |
 
