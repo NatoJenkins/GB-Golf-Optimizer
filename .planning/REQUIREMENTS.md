@@ -3,22 +3,40 @@
 **Defined:** 2026-03-14
 **Core Value:** Generate the best possible cash contest lineups from the user's available player cards, maximizing expected score within salary and collection constraints.
 
-## v1.1 Requirements
+## v1.2 Requirements
 
-Requirements for the Manual Lock/Exclude milestone.
+Requirements for the Automated Projection Fetching milestone.
+
+### Data Fetching & Storage (FETCH)
+
+- [ ] **FETCH-01**: System fetches player projections from the DataGolf `fantasy-projection-defaults` API (PGA Tour, DraftKings scoring, main slate) and writes them to a PostgreSQL database
+- [ ] **FETCH-02**: A cron job on the VPS triggers the fetcher automatically on Tuesday and Wednesday mornings
+- [ ] **FETCH-03**: Fetch activity (player count, tournament name, timestamp, any errors) is written to a log file on the VPS
+- [ ] **FETCH-04**: Existing stored projections are preserved if the API returns an error or fewer than a minimum viable player count
+- [ ] **FETCH-05**: Fetched projections are stored with player name, projected score, tournament name, and fetch timestamp per record
+- [ ] **FETCH-06**: DataGolf player names ("Last, First" format) are normalized to "First Last" before storage to match GameBlazers roster names
+
+### Projection Source (SRC)
+
+- [ ] **SRC-01**: User can select "DataGolf" or "Upload CSV" as the projection source before running the optimizer
+- [ ] **SRC-02**: When "DataGolf" is selected, the optimizer uses the most recently stored projections from the database
+- [ ] **SRC-03**: When "DataGolf" is selected and projections exist, the UI displays the stored tournament name and relative fetch age (e.g., "Arnold Palmer Invitational — fetched 8 days ago"), regardless of whether the data is from the current week or a prior week
+- [ ] **SRC-04**: If no projections have ever been fetched (database is empty), the DataGolf option is disabled with a "No projections available yet" message; stale prior-week projections are never hidden
+- [ ] **SRC-05**: When "DataGolf" is selected, unmatched player warnings are shown for roster players whose projections are not in the database (extends existing unmatched player report)
+
+## v1.1 Requirements (Completed: 2026-03-25)
 
 ### Lock Controls
 
-- [ ] **LOCK-01**: User can lock a specific card (identified by player + multiplier) to force it into the optimizer
-- [ ] **LOCK-02**: User can lock a golfer by name to force at least one of their cards into a lineup
+- [x] **LOCK-01**: User can lock a specific card (identified by player + multiplier) to force it into the optimizer
+- [x] **LOCK-02**: User can lock a golfer by name to force at least one of their cards into a lineup
 - [x] **LOCK-03**: App shows an informative error when locked cards make salary or collection constraints infeasible before running the optimizer
 - [x] **LOCK-04**: App warns user when a lock and exclude conflict on the same player or card
 
 ### Exclude Controls
 
-- [ ] **EXCL-01**: User can exclude a specific card from all lineups in this session
-- [ ] **EXCL-02**: User can exclude a golfer by name, removing all their cards from all lineups
-<!-- Note: EXCL-01 and EXCL-02 data structures complete (04-01). ILP enforcement in 04-02. -->
+- [x] **EXCL-01**: User can exclude a specific card from all lineups in this session
+- [x] **EXCL-02**: User can exclude a golfer by name, removing all their cards from all lineups
 
 ### UI Surface
 
@@ -29,9 +47,9 @@ Requirements for the Manual Lock/Exclude milestone.
 - [x] **UI-05**: User can clear all locks and excludes with a single button
 - [x] **UI-06**: App shows count of active locks and excludes above the Optimize button
 
-## v1.2 Requirements
+## Future Requirements
 
-Deferred to future release.
+Deferred to future releases. Tracked but not in current roadmap.
 
 ### Advanced Optimizer
 
@@ -45,13 +63,28 @@ Deferred to future release.
 - **USBL-02**: User can view card comparison — side-by-side display of multiple cards for same player
 - **USBL-04**: User can export lineups — copy to clipboard or download as CSV
 
+### Projection Management (post-v1.2)
+
+- **MGMT-01**: User can trigger a manual projection refresh from the UI without waiting for the cron schedule
+- **MGMT-02**: UI shows a fetch status dashboard with last fetch time, player count, and error history
+
+### Advanced Sources (v2.0)
+
+- **MSRC-01**: User can upload a custom CSV and compare projected scores side-by-side with DataGolf projections before optimizing
+- **MSRC-02**: System supports averaging projections across multiple sources with configurable weights
+
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Per-lineup lock assignment | No major DFS tool offers it; cross-contest card locking already forces lineup diversity naturally |
-| Persistent lock/exclude (week to week) | Session-scoped is sufficient; user confirmed reset-on-upload is acceptable |
-| Lock/exclude state stored in Flask-Session (server-side) | Cookie session fits comfortably within 4KB limit; no new dependencies needed |
+| Multi-source projection averaging | Single DataGolf source for v1.2; averaging across sources is v2.0 |
+| DataGolf data beyond projections | v1.2 uses `fantasy-projection-defaults` only — no strokes gained, rankings, or historical data |
+| Fuzzy player name matching | Golf has too many similar names; explicit alias table populated from live testing is correct approach |
+| User accounts / per-user projection storage | v1.3 — schema designed for extensibility but not implemented here |
+| DataGolf salary data (DraftKings) | GameBlazers has its own salary system; DK salary from DataGolf is irrelevant |
+| Projection history / snapshots | Only latest projections per event retained; no historical projection archive |
+| Per-lineup lock assignment | No major DFS tool offers it; cross-contest card locking forces lineup diversity naturally |
+| Persistent lock/exclude (week to week) | Session-scoped is sufficient; reset-on-upload confirmed acceptable |
 
 ## Traceability
 
@@ -59,24 +92,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LOCK-01 | Phase 4 | Partial (data structure in 04-01; ILP in 04-02) |
-| LOCK-02 | Phase 4 | Partial (data structure in 04-01; ILP in 04-02) |
-| LOCK-03 | Phase 4 | Complete (04-01) |
-| LOCK-04 | Phase 4 | Complete (04-01) |
-| EXCL-01 | Phase 4 | Partial (data structure in 04-01; ILP pre-filter in 04-02) |
-| EXCL-02 | Phase 4 | Partial (data structure in 04-01; ILP pre-filter in 04-02) |
-| UI-04 | Phase 4 | Complete |
-| UI-02 | Phase 5 | Complete |
-| UI-01 | Phase 6 | Complete |
-| UI-03 | Phase 6 | Complete |
-| UI-05 | Phase 7 | Complete |
-| UI-06 | Phase 7 | Complete |
+| FETCH-01 | — | Pending |
+| FETCH-02 | — | Pending |
+| FETCH-03 | — | Pending |
+| FETCH-04 | — | Pending |
+| FETCH-05 | — | Pending |
+| FETCH-06 | — | Pending |
+| SRC-01 | — | Pending |
+| SRC-02 | — | Pending |
+| SRC-03 | — | Pending |
+| SRC-04 | — | Pending |
+| SRC-05 | — | Pending |
 
 **Coverage:**
-- v1.1 requirements: 12 total
-- Mapped to phases: 12
-- Unmapped: 0 ✓
+- v1.2 requirements: 11 total
+- Mapped to phases: 0
+- Unmapped: 11 ⚠️ (roadmap pending)
 
 ---
 *Requirements defined: 2026-03-14*
-*Last updated: 2026-03-14 after Phase 4 Plan 01 execution (ConstraintSet module)*
+*Last updated: 2026-03-25 after v1.2 milestone definition*
