@@ -63,9 +63,10 @@ Plans:
   3. If the API returns an error or fewer than a minimum viable player count, existing stored projections are preserved (not deleted or overwritten)
   4. A cron job on the VPS triggers the fetcher automatically on Tuesday and Wednesday mornings, with fetch activity (player count, tournament name, timestamp, errors) written to a log file
   5. Running the fetcher multiple times for the same event is idempotent — it replaces stale data cleanly without duplicating rows
-**Plans**: TBD
-
-**Research flag**: DataGolf API response field names require a live discovery call before writing any parsing code. Make one API call at phase start, log the full raw response, and finalize the Pydantic model and DB schema from the actual field names.
+**Plans:** 2 plans
+Plans:
+- [ ] 09-01-PLAN.md — httpx dependency, API discovery call, fetcher module (Pydantic model, name normalization, DB writes, fetch orchestration, logging), comprehensive test suite
+- [ ] 09-02-PLAN.md — Flask CLI command wiring, cron documentation, live end-to-end fetch verification
 
 ### Phase 10: Projection Source Selector
 **Goal**: Users can choose between DataGolf projections from the database or a manually uploaded CSV before running the optimizer
@@ -104,10 +105,10 @@ Plans:
 | 6. Lock/Exclude UI | v1.1 | 3/3 | Complete | 2026-03-14 |
 | 7. Polish | v1.1 | 2/2 | Complete | 2026-03-14 |
 | 8. Database Foundation | v1.2 | 1/1 | Complete | 2026-03-25 |
-| 9. DataGolf Fetcher | v1.2 | 0/? | Not started | - |
+| 9. DataGolf Fetcher | v1.2 | 0/2 | Planned | - |
 | 10. Projection Source Selector | v1.2 | 0/? | Not started | - |
 | 11. Deploy and Verification | v1.2 | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-03-13*
-*Last updated: 2026-03-25 after Phase 8 execution complete (1/1 plans done)*
+*Last updated: 2026-03-25 after Phase 9 planning complete (2 plans)*
