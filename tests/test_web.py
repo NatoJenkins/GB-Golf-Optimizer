@@ -89,6 +89,24 @@ def _post_csvs(client, roster_csv, projections_csv):
     )
 
 
+def _post_hybrid(client, roster_csv, projections_csv):
+    """Helper: POST with projection_source=hybrid."""
+    return client.post(
+        "/",
+        data={
+            "roster": (io.BytesIO(roster_csv.encode("utf-8")), "roster.csv"),
+            "projections": (io.BytesIO(projections_csv.encode("utf-8")), "projections.csv"),
+            "projection_source": "hybrid",
+        },
+        content_type="multipart/form-data",
+    )
+
+
+# Partial projections CSV: only first 10 of 30 players at 80.0
+_PARTIAL_PROJ_ROWS = [f"{p},80.0" for p, _, _ in _VALID_PLAYERS[:10]]
+PARTIAL_PROJECTIONS_CSV = "player,projected_score\n" + "\n".join(_PARTIAL_PROJ_ROWS) + "\n"
+
+
 # ---------------------------------------------------------------------------
 # Fixture
 # ---------------------------------------------------------------------------
@@ -720,6 +738,73 @@ def test_auto_source_unmatched_players(db_client):
         },
         content_type="multipart/form-data",
     )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Unmatched Player" in html
+    assert "no projection found" in html
+
+
+# ---------------------------------------------------------------------------
+# Phase: Hybrid projection source
+# ---------------------------------------------------------------------------
+
+
+def test_hybrid_fills_gaps_from_db(db_client):
+    """Hybrid: CSV has 10 players, DB has all 30 -> all 30 matched, lineup generated."""
+    players_scores = [(p, 72.5) for p, _, _ in _VALID_PLAYERS]
+    _seed_projections(db_client._app, players_scores)
+    response = _post_hybrid(db_client, SAMPLE_ROSTER_CSV, PARTIAL_PROJECTIONS_CSV)
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "The Tips" in html
+
+
+def test_hybrid_csv_takes_priority(db_client):
+    """Hybrid: CSV has Player A at 99.0, DB has Player A at 72.5 -> Player A gets 99.0."""
+    players_scores = [(p, 72.5) for p, _, _ in _VALID_PLAYERS]
+    _seed_projections(db_client._app, players_scores)
+    # CSV with just Player A at 99.0 — all others come from DB
+    override_csv = "player,projected_score\nPlayer A,99.0\n"
+    response = _post_hybrid(db_client, SAMPLE_ROSTER_CSV, override_csv)
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    # Player A should have projected_score 99.0 in the card pool JSON
+    assert "99.00" in html
+
+
+def test_hybrid_db_empty_still_works(db_client):
+    """Hybrid: DB empty, full CSV provided -> still works (CSV-only fallback)."""
+    # Do NOT seed DB
+    response = _post_hybrid(db_client, SAMPLE_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "The Tips" in html
+
+
+def test_hybrid_no_projections_file_error(db_client):
+    """Hybrid: no projections file uploaded -> returns error."""
+    players_scores = [(p, 72.5) for p, _, _ in _VALID_PLAYERS]
+    _seed_projections(db_client._app, players_scores)
+    response = db_client.post(
+        "/",
+        data={
+            "roster": (io.BytesIO(SAMPLE_ROSTER_CSV.encode("utf-8")), "roster.csv"),
+            "projection_source": "hybrid",
+        },
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Projections file is required" in html
+
+
+def test_hybrid_unmatched_from_both_sources(db_client):
+    """Hybrid: players missing from BOTH CSV and DB appear in exclusion report."""
+    # Seed DB with only the 30 standard players (not "Unmatched Player")
+    players_scores = [(p, 72.5) for p, _, _ in _VALID_PLAYERS]
+    _seed_projections(db_client._app, players_scores)
+    # EXCLUSION_ROSTER_CSV has "Unmatched Player" which is not in CSV or DB
+    response = _post_hybrid(db_client, EXCLUSION_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
     assert response.status_code == 200
     html = response.data.decode("utf-8")
     assert "Unmatched Player" in html
