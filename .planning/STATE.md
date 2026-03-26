@@ -5,7 +5,7 @@ milestone_name: Automated Projection Fetching
 status: archived
 stopped_at: v1.2 milestone archived — ready for next milestone planning
 last_updated: "2026-03-26T04:30:00Z"
-last_activity: 2026-03-26 — v1.2 milestone archived, git tag created
+last_activity: 2026-03-26 — Completed quick task 260326-iba: Add hybrid projection source mode
 progress:
   total_phases: 4
   completed_phases: 4
@@ -42,3 +42,9 @@ None.
 ### Blockers/Concerns
 
 None.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260326-iba | Add hybrid projection source mode | 2026-03-26 | b961802 | [260326-iba-add-hybrid-projection-source-mode](.planning/quick/260326-iba-add-hybrid-projection-source-mode/) |
