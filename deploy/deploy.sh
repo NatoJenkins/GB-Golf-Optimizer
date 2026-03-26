@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Deploy GB Golf Optimizer to VPS
 # Usage: bash deploy/deploy.sh
-
 set -e
 
 REMOTE="deploy@193.46.198.60"
@@ -17,11 +16,15 @@ tar -czf - \
   --exclude='./*.pyc' \
   --exclude='./**/*.pyc' \
   --exclude='./venv' \
+  --exclude='./.venv' \
   --exclude='./*.sock' \
   -C "$LOCAL_PATH" . \
   | ssh "$REMOTE" "tar -xzf - -C $REMOTE_PATH"
 
+echo "Running database migration..."
+ssh "$REMOTE" "cd $REMOTE_PATH && FLASK_APP=gbgolf.web:create_app .venv/bin/flask db upgrade"
+
 echo "Restarting service..."
 ssh "$REMOTE" "sudo systemctl restart gbgolf && systemctl status gbgolf --no-pager"
 
-echo "Done. Visit http://gameblazers.silverreyes.net/golf"
+echo "Done. Visit https://gameblazers.silverreyes.net/golf"
