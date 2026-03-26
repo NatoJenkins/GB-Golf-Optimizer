@@ -35,7 +35,7 @@ See: `.planning/milestones/v1.0-ROADMAP.md` for full phase details.
 
 - [x] **Phase 8: Database Foundation** — PostgreSQL setup, Flask-SQLAlchemy integration, projections table schema
 - [x] **Phase 9: DataGolf Fetcher** — API client, name normalization, transactional upsert, cron scheduling, fetch logging (completed 2026-03-25)
-- [ ] **Phase 10: Projection Source Selector** — UI source picker, DB projection loading, staleness display, empty-state handling, unmatched warnings
+- [x] **Phase 10: Projection Source Selector** — UI source picker, DB projection loading, staleness display, empty-state handling, unmatched warnings (completed 2026-03-26)
 - [ ] **Phase 11: Deploy and Verification** — Production deployment of PostgreSQL + cron + source selector, end-to-end verification on VPS
 
 ## Phase Details
@@ -65,8 +65,8 @@ Plans:
   5. Running the fetcher multiple times for the same event is idempotent — it replaces stale data cleanly without duplicating rows
 **Plans:** 2/2 plans complete
 Plans:
-- [ ] 09-01-PLAN.md — httpx dependency, API discovery call, fetcher module (Pydantic model, name normalization, DB writes, fetch orchestration, logging), comprehensive test suite
-- [ ] 09-02-PLAN.md — Flask CLI command wiring, cron documentation, live end-to-end fetch verification
+- [x] 09-01-PLAN.md — httpx dependency, API discovery call, fetcher module (Pydantic model, name normalization, DB writes, fetch orchestration, logging), comprehensive test suite
+- [x] 09-02-PLAN.md — Flask CLI command wiring, cron documentation, live end-to-end fetch verification
 
 ### Phase 10: Projection Source Selector
 **Goal**: Users can choose between DataGolf projections from the database or a manually uploaded CSV before running the optimizer
@@ -78,10 +78,10 @@ Plans:
   3. The UI displays the stored tournament name and relative fetch age (e.g., "Arnold Palmer Invitational -- fetched 3 days ago") when DataGolf is selected
   4. If no projections have ever been fetched, the DataGolf option is disabled with a "No projections available yet" message
   5. When DataGolf projections are used, unmatched player warnings appear for roster players not found in the stored projections (same report format as CSV source)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 10-01-PLAN.md — Backend data layer (load_projections_from_db, validate_pipeline_auto) and route modifications (GET DB query, POST source branching)
-- [ ] 10-02-PLAN.md — Frontend UI (radio buttons, staleness label, JS toggle, CSS), full test suite (8 tests), visual verification checkpoint
+- [x] 10-01-PLAN.md — Backend data layer (load_projections_from_db, validate_pipeline_auto) and route modifications (GET DB query, POST source branching)
+- [x] 10-02-PLAN.md — Frontend UI (radio buttons, staleness label, JS toggle, CSS), full test suite (8 tests), visual verification checkpoint
 
 ### Phase 11: Deploy and Verification
 **Goal**: The full v1.2 feature set (PostgreSQL, cron fetcher, source selector) is deployed and verified working end-to-end on the production VPS
@@ -109,9 +109,9 @@ Plans:
 | 7. Polish | v1.1 | 2/2 | Complete | 2026-03-14 |
 | 8. Database Foundation | v1.2 | 1/1 | Complete | 2026-03-25 |
 | 9. DataGolf Fetcher | v1.2 | 2/2 | Complete | 2026-03-25 |
-| 10. Projection Source Selector | 1/2 | In Progress|  | - |
+| 10. Projection Source Selector | v1.2 | 2/2 | Complete | 2026-03-26 |
 | 11. Deploy and Verification | v1.2 | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-03-13*
-*Last updated: 2026-03-25 after Phase 10 planning complete (2 plans)*
+*Last updated: 2026-03-26 after Phase 10 complete (2/2 plans done)*
