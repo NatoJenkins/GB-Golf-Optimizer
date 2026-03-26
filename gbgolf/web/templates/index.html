@@ -42,6 +42,11 @@
             Auto
           </label>
           <label class="source-radio">
+            <input type="radio" name="source_radio" value="hybrid"
+                   {% if not db_has_projections %}disabled{% endif %} />
+            Hybrid
+          </label>
+          <label class="source-radio">
             <input type="radio" name="source_radio" value="csv"
                    {% if not db_has_projections %}checked{% endif %} />
             Upload CSV
@@ -457,6 +462,11 @@
         }
         if (stalenessEl) stalenessEl.style.display = '';
         if (csvFormatHint) csvFormatHint.style.display = 'none';
+      } else if (radio.value === 'hybrid') {
+        if (projZone) projZone.style.display = '';
+        if (projFileInput) projFileInput.setAttribute('required', '');
+        if (stalenessEl) stalenessEl.style.display = '';
+        if (csvFormatHint) csvFormatHint.style.display = '';
       } else {
         if (projZone) projZone.style.display = '';
         if (projFileInput) projFileInput.setAttribute('required', '');

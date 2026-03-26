@@ -809,3 +809,42 @@ def test_hybrid_unmatched_from_both_sources(db_client):
     html = response.data.decode("utf-8")
     assert "Unmatched Player" in html
     assert "no projection found" in html
+
+
+def test_hybrid_radio_rendered(db_client):
+    """Hybrid radio button is rendered when DB has projections."""
+    _seed_projections(db_client._app, [("Player A", 72.5)])
+    response = db_client.get("/")
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'value="hybrid"' in html
+
+
+def test_hybrid_radio_disabled_no_db(db_client):
+    """Hybrid radio is present but disabled when DB has no projections."""
+    response = db_client.get("/")
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'value="hybrid"' in html
+    # Find the hybrid radio input and check it has the disabled attribute
+    hybrid_pos = html.index('value="hybrid"')
+    # Look at the surrounding input tag (search backwards for '<input')
+    tag_start = html.rfind("<input", 0, hybrid_pos)
+    tag_end = html.index("/>", hybrid_pos) + 2
+    hybrid_tag = html[tag_start:tag_end]
+    assert "disabled" in hybrid_tag
+
+
+def test_hybrid_radio_enabled_with_db(db_client):
+    """Hybrid radio is enabled (not disabled) when DB has projections."""
+    _seed_projections(db_client._app, [("Player A", 72.5)])
+    response = db_client.get("/")
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert 'value="hybrid"' in html
+    # Find the hybrid radio input and check it does NOT have the disabled attribute
+    hybrid_pos = html.index('value="hybrid"')
+    tag_start = html.rfind("<input", 0, hybrid_pos)
+    tag_end = html.index("/>", hybrid_pos) + 2
+    hybrid_tag = html[tag_start:tag_end]
+    assert "disabled" not in hybrid_tag
