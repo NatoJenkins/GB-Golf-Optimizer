@@ -51,6 +51,9 @@
                    {% if not db_has_projections %}checked{% endif %} />
             Upload CSV
           </label>
+          <div class="hybrid-hint" id="hybrid-hint" style="display:none">
+            Only have projections for some players? Upload your partial CSV and we'll automatically backfill the rest from DataGolf. Your CSV takes priority — DataGolf only fills in the gaps.
+          </div>
           <div class="csv-format-hint" id="csv-format-hint"{% if db_has_projections %} style="display:none"{% endif %}>
             Two columns required:<br>
             <strong>Player name</strong> — acceptable column header names are: <code>player</code>, <code>name</code>, <code>golfer</code><br>
@@ -450,6 +453,7 @@
   var projFileInput = document.getElementById('projections');
   var stalenessEl = document.getElementById('staleness-label');
   var csvFormatHint = document.getElementById('csv-format-hint');
+  var hybridHint = document.getElementById('hybrid-hint');
 
   sourceRadios.forEach(function(radio) {
     radio.addEventListener('change', function() {
@@ -462,16 +466,19 @@
         }
         if (stalenessEl) stalenessEl.style.display = '';
         if (csvFormatHint) csvFormatHint.style.display = 'none';
+        if (hybridHint) hybridHint.style.display = 'none';
       } else if (radio.value === 'hybrid') {
         if (projZone) projZone.style.display = '';
         if (projFileInput) projFileInput.setAttribute('required', '');
         if (stalenessEl) stalenessEl.style.display = '';
         if (csvFormatHint) csvFormatHint.style.display = '';
+        if (hybridHint) hybridHint.style.display = '';
       } else {
         if (projZone) projZone.style.display = '';
         if (projFileInput) projFileInput.setAttribute('required', '');
         if (stalenessEl) stalenessEl.style.display = 'none';
         if (csvFormatHint) csvFormatHint.style.display = '';
+        if (hybridHint) hybridHint.style.display = 'none';
       }
     });
   });

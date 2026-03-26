@@ -323,6 +323,15 @@ main {
   flex-wrap: wrap;
 }
 
+.hybrid-hint {
+  border-left: 1px solid var(--border-2);
+  padding-left: 12px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-style: italic;
+}
+
 .csv-format-hint {
   border-left: 1px solid var(--border-2);
   padding-left: 12px;
