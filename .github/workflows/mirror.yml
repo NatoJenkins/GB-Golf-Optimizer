@@ -14,5 +14,8 @@ jobs:
           fetch-depth: 0
 
       - name: Push mirror
+        env:
+          PROFESSIONAL_TOKEN: ${{ secrets.PROFESSIONAL_GITHUB_TOKEN }}
         run: |
-          git push https://x-access-token:${{ secrets.PROFESSIONAL_GITHUB_TOKEN }}@github.com/silverreyes/GB-Golf-Optimizer.git --mirror
+          git config --global --unset-all credential.helper || true
+          git push https://x-access-token:${PROFESSIONAL_TOKEN}@github.com/silverreyes/GB-Golf-Optimizer.git --mirror
