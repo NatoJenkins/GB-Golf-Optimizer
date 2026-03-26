@@ -347,6 +347,33 @@ main {
   color: var(--text-muted);
 }
 
+.csv-hint {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.csv-hint strong {
+  color: var(--text);
+}
+
+.csv-hint code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 4px;
+  color: var(--accent);
+}
+
+.csv-hint-note {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
 /* ── Buttons ─────────────────────────────────────────────── */
 
 button[type="submit"] {

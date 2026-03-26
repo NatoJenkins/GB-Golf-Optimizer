@@ -78,6 +78,12 @@
       <div id="projections-zone"{% if db_has_projections %} style="display:none"{% endif %}>
       <div class="form-row">
         <span class="form-row-heading">Projections CSV</span>
+        <p class="csv-hint">
+          Two columns required:<br>
+          <strong>Player name</strong> — acceptable column header names are: <code>player</code>, <code>name</code>, <code>golfer</code><br>
+          <strong>Projected score</strong> — acceptable column header names are: <code>projected_score</code>, <code>score</code>, <code>projection</code>, <code>projectedpoints</code><br>
+          <span class="csv-hint-note">Player names are normalized automatically — accents and case don't matter.</span>
+        </p>
         <label class="file-upload-zone">
           <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
