@@ -4,12 +4,14 @@ Flask blueprint: index route handling file uploads and lineup generation.
 import json
 import os
 import tempfile
-from datetime import date
+from datetime import date, datetime, timezone
 
 from flask import Blueprint, current_app, render_template, request, session
+from sqlalchemy import text
 
-from gbgolf.data import validate_pipeline
+from gbgolf.data import validate_pipeline, validate_pipeline_auto
 from gbgolf.data.models import Card
+from gbgolf.db import db
 from gbgolf.optimizer import optimize
 from gbgolf.optimizer.constraints import ConstraintSet, check_conflicts, check_feasibility
 
@@ -54,6 +56,34 @@ def _deserialize_cards(json_str: str) -> list:
     return cards
 
 
+def _get_latest_fetch():
+    """Query latest fetch record for staleness label. Returns dict or None."""
+    row = db.session.execute(
+        text("SELECT tournament_name, fetched_at FROM fetches ORDER BY fetched_at DESC LIMIT 1")
+    ).mappings().fetchone()
+    if row is None:
+        return None
+    fetched_at = row["fetched_at"]
+    now = datetime.now(timezone.utc)
+    if fetched_at.tzinfo is None:
+        fetched_at = fetched_at.replace(tzinfo=timezone.utc)
+    delta = now - fetched_at
+    return {
+        "tournament_name": row["tournament_name"],
+        "days_ago": delta.days,
+        "is_stale": delta.days >= 7,
+    }
+
+
+def _db_template_vars():
+    """Return dict of DB-related template variables for render_template()."""
+    latest_fetch = _get_latest_fetch()
+    return {
+        "latest_fetch": latest_fetch,
+        "db_has_projections": latest_fetch is not None,
+    }
+
+
 bp = Blueprint("main", __name__)
 
 
@@ -61,19 +91,21 @@ bp = Blueprint("main", __name__)
 def index():
     """Main page: upload form (GET) and optimization results (POST)."""
     if request.method == "GET":
-        return render_template("index.html")
+        return render_template("index.html", **_db_template_vars())
 
     # --- POST: handle file uploads ---
     roster_file = request.files.get("roster")
     if not roster_file or roster_file.filename == "":
-        return render_template("index.html", error="Roster file is required.")
+        return render_template("index.html", error="Roster file is required.", **_db_template_vars())
 
+    projection_source = request.form.get("projection_source", "csv")
+
+    # Validate: projections file required only for CSV source
     projections_file = request.files.get("projections")
-    if not projections_file or projections_file.filename == "":
-        return render_template("index.html", error="Projections file is required.")
+    if projection_source == "csv" and (not projections_file or projections_file.filename == ""):
+        return render_template("index.html", error="Projections file is required.", **_db_template_vars())
 
     # CLEAR lock/exclude session keys on file upload (UI-04)
-    # Unconditional — no hash comparison. Order: clear -> build -> optimize.
     lock_reset = False
     if request.files.get("roster") or request.files.get("projections"):
         session.pop("locked_cards", None)
@@ -93,19 +125,22 @@ def index():
     roster_tmp = None
     projections_tmp = None
     try:
-        # Write uploads to temp files (closed before passing to validate_pipeline
-        # so Windows does not keep an exclusive lock on the file handle)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as rf:
             roster_file.save(rf)
             roster_tmp = rf.name
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as pf:
-            projections_file.save(pf)
-            projections_tmp = pf.name
-
-        # Files are now closed; safe to read on Windows
         config_path = current_app.config["CONFIG_PATH"]
-        validation = validate_pipeline(roster_tmp, projections_tmp, config_path)
+
+        if projection_source == "auto":
+            validation = validate_pipeline_auto(roster_tmp, config_path)
+        else:
+            if not projections_file:
+                return render_template("index.html", error="Projections file is required.", **_db_template_vars())
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as pf:
+                projections_file.save(pf)
+                projections_tmp = pf.name
+            validation = validate_pipeline(roster_tmp, projections_tmp, config_path)
+
         result = optimize(validation.valid_cards, current_app.config["CONTESTS"], constraints=constraints)
 
         card_pool_json = _serialize_cards(validation.valid_cards)
@@ -117,16 +152,16 @@ def index():
             lock_reset=lock_reset,
             card_pool_json=card_pool_json,
             card_pool=sorted(validation.valid_cards, key=lambda c: (c.player, -c.salary)),
-            locked_card_keys=set(),        # session just cleared — no locks on fresh upload
+            locked_card_keys=set(),
             locked_golfer_set=set(),
             excluded_player_set=set(),
+            **_db_template_vars(),
         )
 
     except ValueError as exc:
-        return render_template("index.html", error=str(exc))
+        return render_template("index.html", error=str(exc), **_db_template_vars())
 
     finally:
-        # Clean up temp files regardless of outcome
         if roster_tmp and os.path.exists(roster_tmp):
             try:
                 os.unlink(roster_tmp)
@@ -147,6 +182,7 @@ def reoptimize():
         return render_template(
             "index.html",
             error="Session expired — please re-upload your files",
+            **_db_template_vars(),
         )
 
     try:
@@ -155,6 +191,7 @@ def reoptimize():
         return render_template(
             "index.html",
             error="Session expired — please re-upload your files",
+            **_db_template_vars(),
         )
 
     def _parse_card_keys(raw_list):
@@ -195,6 +232,7 @@ def reoptimize():
             error=conflict_result.message,
             show_results=False,
             card_pool_json=card_pool_json,
+            **_db_template_vars(),
         )
 
     for contest_config in current_app.config["CONTESTS"]:
@@ -205,6 +243,7 @@ def reoptimize():
                 error=feasibility_result.message,
                 show_results=False,
                 card_pool_json=card_pool_json,
+                **_db_template_vars(),
             )
 
     result = optimize(valid_cards, current_app.config["CONTESTS"], constraints=constraints)
@@ -219,4 +258,5 @@ def reoptimize():
         locked_card_keys=set(locked_cards),
         locked_golfer_set=set(locked_golfers),
         excluded_player_set=set(excluded_players),
+        **_db_template_vars(),
     )

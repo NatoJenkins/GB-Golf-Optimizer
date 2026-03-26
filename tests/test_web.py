@@ -96,10 +96,14 @@ def _post_csvs(client, roster_csv, projections_csv):
 @pytest.fixture()
 def client():
     from gbgolf.web import create_app  # ImportError until Task 2
+    from gbgolf.db import db as _db
     app = create_app()
     app.config["TESTING"] = True
-    with app.test_client() as c:
-        yield c
+    with app.app_context():
+        _db.create_all()
+        with app.test_client() as c:
+            yield c
+        _db.drop_all()
 
 
 # ---------------------------------------------------------------------------
