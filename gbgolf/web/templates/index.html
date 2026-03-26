@@ -51,6 +51,9 @@
                    {% if not db_has_projections %}checked{% endif %} />
             Upload CSV
           </label>
+          <div class="csv-only-hint" id="csv-only-hint" style="display:none">
+            For a complete projections file covering your full player pool. DataGolf data is not used — only players in your CSV will receive projections.
+          </div>
           <div class="hybrid-hint" id="hybrid-hint" style="display:none">
             Only have projections for some players? Upload your partial CSV and we'll automatically backfill the rest from DataGolf. Your CSV takes priority — DataGolf only fills in the gaps.
           </div>
@@ -454,6 +457,7 @@
   var stalenessEl = document.getElementById('staleness-label');
   var csvFormatHint = document.getElementById('csv-format-hint');
   var hybridHint = document.getElementById('hybrid-hint');
+  var csvOnlyHint = document.getElementById('csv-only-hint');
 
   sourceRadios.forEach(function(radio) {
     radio.addEventListener('change', function() {
@@ -467,18 +471,21 @@
         if (stalenessEl) stalenessEl.style.display = '';
         if (csvFormatHint) csvFormatHint.style.display = 'none';
         if (hybridHint) hybridHint.style.display = 'none';
+        if (csvOnlyHint) csvOnlyHint.style.display = 'none';
       } else if (radio.value === 'hybrid') {
         if (projZone) projZone.style.display = '';
         if (projFileInput) projFileInput.setAttribute('required', '');
         if (stalenessEl) stalenessEl.style.display = '';
         if (csvFormatHint) csvFormatHint.style.display = '';
         if (hybridHint) hybridHint.style.display = '';
+        if (csvOnlyHint) csvOnlyHint.style.display = 'none';
       } else {
         if (projZone) projZone.style.display = '';
         if (projFileInput) projFileInput.setAttribute('required', '');
         if (stalenessEl) stalenessEl.style.display = 'none';
         if (csvFormatHint) csvFormatHint.style.display = '';
         if (hybridHint) hybridHint.style.display = 'none';
+        if (csvOnlyHint) csvOnlyHint.style.display = '';
       }
     });
   });
