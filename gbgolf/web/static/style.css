@@ -546,6 +546,13 @@ button[type="submit"]:active {
   transform: rotate(90deg);
 }
 
+.pool-hint {
+  font-weight: 400;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
 .pool-inner {
   padding: 1rem 1.25rem 1.25rem;
   overflow-x: auto;
