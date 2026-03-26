@@ -124,6 +124,7 @@ def test_write_fetch_log_creates_dir(tmp_path):
 
 def test_write_projections_inserts(db_session):
     """Inserts a fetches row + projection rows, returns fetch_id > 0."""
+    # SQLite requires explicit FK enforcement (tests use in-memory SQLite)
     db_session.execute(text("PRAGMA foreign_keys = ON"))
     players = [
         {"player_name": "Scottie Scheffler", "projected_score": 72.5},
@@ -148,6 +149,7 @@ def test_write_projections_inserts(db_session):
 
 def test_write_projections_replaces_stale(db_session):
     """Second call for same tournament deletes old rows via CASCADE, inserts new."""
+    # SQLite requires explicit FK enforcement (tests use in-memory SQLite)
     db_session.execute(text("PRAGMA foreign_keys = ON"))
     old_players = [{"player_name": "Old Player", "projected_score": 60.0}]
     write_projections(db_session, "Test Open", "pga", old_players)
@@ -183,6 +185,7 @@ def test_write_projections_replaces_stale(db_session):
 
 def test_write_projections_idempotent(db_session):
     """Calling twice with same data leaves exactly one fetch + N projections."""
+    # SQLite requires explicit FK enforcement (tests use in-memory SQLite)
     db_session.execute(text("PRAGMA foreign_keys = ON"))
     players = [
         {"player_name": "Player A", "projected_score": 65.0},
@@ -211,32 +214,33 @@ def test_write_projections_skips_pragma_on_non_sqlite(db_session, monkeypatch):
     executed_statements = []
     original_execute = db_session.execute
 
-    def tracking_execute(stmt, *args, **kwargs):
-        if hasattr(stmt, 'text'):
-            executed_statements.append(stmt.text)
-        return original_execute(stmt, *args, **kwargs)
-
     # SQLite requires explicit FK enforcement (tests use in-memory SQLite)
     db_session.execute(text("PRAGMA foreign_keys = ON"))
 
-    # Fake a non-sqlite dialect
+    # Save real bind for actual DB work, then fake get_bind for dialect check
+    real_bind = db_session.get_bind()
+
     class FakeBind:
         class dialect:
             name = "postgresql"
-    monkeypatch.setattr(db_session, "bind", FakeBind())
 
-    # Patch execute to track statements (restore real bind for actual execution)
-    real_bind = db_session.get_bind()
+    get_bind_call_count = 0
+
+    def fake_get_bind(*args, **kwargs):
+        nonlocal get_bind_call_count
+        get_bind_call_count += 1
+        # First call is the dialect check in write_projections — return fake
+        if get_bind_call_count == 1:
+            return FakeBind()
+        # Subsequent calls return the real bind
+        return real_bind
+
+    monkeypatch.setattr(db_session, "get_bind", fake_get_bind)
 
     def patched_execute(stmt, *args, **kwargs):
         if hasattr(stmt, 'text'):
             executed_statements.append(stmt.text)
-        # Restore real bind for actual DB work
-        monkeypatch.setattr(db_session, "bind", real_bind)
-        result = original_execute(stmt, *args, **kwargs)
-        # Re-fake the bind for any subsequent dialect checks
-        monkeypatch.setattr(db_session, "bind", FakeBind())
-        return result
+        return original_execute(stmt, *args, **kwargs)
 
     monkeypatch.setattr(db_session, "execute", patched_execute)
 
@@ -285,6 +289,7 @@ def test_run_fetch_low_count_guard(app, db_session, monkeypatch, tmp_path):
     log_dir = str(tmp_path / "logs")
 
     # Pre-seed some data to verify it is preserved
+    # SQLite requires explicit FK enforcement (tests use in-memory SQLite)
     db_session.execute(text("PRAGMA foreign_keys = ON"))
     db_session.execute(text("""
         INSERT INTO fetches (tournament_name, fetched_at, player_count, source, tour)

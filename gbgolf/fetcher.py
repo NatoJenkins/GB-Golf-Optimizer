@@ -90,8 +90,9 @@ def write_projections(session, tournament_name: str, tour: str, players: list[di
 
     Returns the new fetch_id.
     """
-    # Enable FK constraints for SQLite (no-op on PostgreSQL)
-    session.execute(text("PRAGMA foreign_keys = ON"))
+    # Enable FK constraints for SQLite (PostgreSQL always enforces FKs)
+    if session.get_bind().dialect.name == "sqlite":
+        session.execute(text("PRAGMA foreign_keys = ON"))
 
     # DELETE old data for this tournament/tour (CASCADE deletes projections)
     session.execute(
