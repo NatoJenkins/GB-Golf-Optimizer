@@ -19,9 +19,9 @@ Requirements for the Automated Projection Fetching milestone.
 ### Projection Source (SRC)
 
 - [ ] **SRC-01**: User can select "DataGolf" or "Upload CSV" as the projection source before running the optimizer
-- [ ] **SRC-02**: When "DataGolf" is selected, the optimizer uses the most recently stored projections from the database
+- [x] **SRC-02**: When "DataGolf" is selected, the optimizer uses the most recently stored projections from the database
 - [ ] **SRC-03**: When "DataGolf" is selected and projections exist, the UI displays the stored tournament name and relative fetch age (e.g., "Arnold Palmer Invitational — fetched 8 days ago"), regardless of whether the data is from the current week or a prior week
-- [ ] **SRC-04**: If no projections have ever been fetched (database is empty), the DataGolf option is disabled with a "No projections available yet" message; stale prior-week projections are never hidden
+- [x] **SRC-04**: If no projections have ever been fetched (database is empty), the DataGolf option is disabled with a "No projections available yet" message; stale prior-week projections are never hidden
 - [ ] **SRC-05**: When "DataGolf" is selected, unmatched player warnings are shown for roster players whose projections are not in the database (extends existing unmatched player report)
 
 ## v1.1 Requirements (Completed: 2026-03-25)
@@ -99,9 +99,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FETCH-05 | Phase 8 | Complete |
 | FETCH-06 | Phase 9 | Complete |
 | SRC-01 | Phase 10 | Pending |
-| SRC-02 | Phase 10 | Pending |
+| SRC-02 | Phase 10 | Complete |
 | SRC-03 | Phase 10 | Pending |
-| SRC-04 | Phase 10 | Pending |
+| SRC-04 | Phase 10 | Complete |
 | SRC-05 | Phase 10 | Pending |
 
 **Coverage:**

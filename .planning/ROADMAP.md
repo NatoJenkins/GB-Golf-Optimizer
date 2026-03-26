@@ -78,7 +78,7 @@ Plans:
   3. The UI displays the stored tournament name and relative fetch age (e.g., "Arnold Palmer Invitational -- fetched 3 days ago") when DataGolf is selected
   4. If no projections have ever been fetched, the DataGolf option is disabled with a "No projections available yet" message
   5. When DataGolf projections are used, unmatched player warnings appear for roster players not found in the stored projections (same report format as CSV source)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 10-01-PLAN.md — Backend data layer (load_projections_from_db, validate_pipeline_auto) and route modifications (GET DB query, POST source branching)
 - [ ] 10-02-PLAN.md — Frontend UI (radio buttons, staleness label, JS toggle, CSS), full test suite (8 tests), visual verification checkpoint
@@ -109,7 +109,7 @@ Plans:
 | 7. Polish | v1.1 | 2/2 | Complete | 2026-03-14 |
 | 8. Database Foundation | v1.2 | 1/1 | Complete | 2026-03-25 |
 | 9. DataGolf Fetcher | v1.2 | 2/2 | Complete | 2026-03-25 |
-| 10. Projection Source Selector | v1.2 | 0/2 | Planned | - |
+| 10. Projection Source Selector | 1/2 | In Progress|  | - |
 | 11. Deploy and Verification | v1.2 | 0/? | Not started | - |
 
 ---
