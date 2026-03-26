@@ -109,7 +109,7 @@ Plans:
 | 7. Polish | v1.1 | 2/2 | Complete | 2026-03-14 |
 | 8. Database Foundation | v1.2 | 1/1 | Complete | 2026-03-25 |
 | 9. DataGolf Fetcher | v1.2 | 2/2 | Complete | 2026-03-25 |
-| 10. Projection Source Selector | v1.2 | 2/2 | Complete | 2026-03-26 |
+| 10. Projection Source Selector | v1.2 | Complete    | 2026-03-26 | 2026-03-26 |
 | 11. Deploy and Verification | v1.2 | 0/? | Not started | - |
 
 ---
