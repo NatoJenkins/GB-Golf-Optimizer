@@ -33,6 +33,36 @@
     <summary>{% if show_results %}Change Files{% else %}Upload Files{% endif %}</summary>
     <form method="post" action="{{ url_for('main.index') }}" enctype="multipart/form-data" id="upload-form">
       <div class="form-row">
+        <span class="form-row-heading">Projection Source</span>
+        <div class="source-selector">
+          <label class="source-radio">
+            <input type="radio" name="source_radio" value="auto"
+                   {% if db_has_projections %}checked{% endif %}
+                   {% if not db_has_projections %}disabled{% endif %} />
+            Auto
+          </label>
+          <label class="source-radio">
+            <input type="radio" name="source_radio" value="csv"
+                   {% if not db_has_projections %}checked{% endif %} />
+            Upload CSV
+          </label>
+        </div>
+        <input type="hidden" name="projection_source" id="projection-source-input"
+               value="{{ 'auto' if db_has_projections else 'csv' }}" />
+        {% if latest_fetch %}
+        <div class="staleness-label{% if latest_fetch.is_stale %} stale{% endif %}"
+             id="staleness-label">
+          {{ latest_fetch.tournament_name }} &mdash;
+          {% if latest_fetch.days_ago == 0 %}fetched today
+          {% elif latest_fetch.days_ago == 1 %}fetched 1 day ago
+          {% else %}fetched {{ latest_fetch.days_ago }} days ago
+          {% endif %}
+        </div>
+        {% elif not db_has_projections %}
+        <div class="staleness-label stale" id="staleness-label">No projections available yet</div>
+        {% endif %}
+      </div>
+      <div class="form-row">
         <span class="form-row-heading">Roster CSV</span>
         <label class="file-upload-zone">
           <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -45,6 +75,7 @@
           <input type="file" id="roster" name="roster" accept=".csv" required />
         </label>
       </div>
+      <div id="projections-zone"{% if db_has_projections %} style="display:none"{% endif %}>
       <div class="form-row">
         <span class="form-row-heading">Projections CSV</span>
         <label class="file-upload-zone">
@@ -55,8 +86,9 @@
           </svg>
           <span class="upload-hint">Click to select a CSV file</span>
           <span class="upload-filename" id="projections-filename"></span>
-          <input type="file" id="projections" name="projections" accept=".csv" required />
+          <input type="file" id="projections" name="projections" accept=".csv"{% if not db_has_projections %} required{% endif %} />
         </label>
+      </div>
       </div>
       <button type="submit">Generate Lineups</button>
     </form>
@@ -396,6 +428,31 @@
         nameEl.textContent = '';
         nameEl.style.display = 'none';
         hintEl.style.display = 'block';
+      }
+    });
+  });
+
+  // --- Source selector toggle ---
+  var sourceRadios = document.querySelectorAll('input[name="source_radio"]');
+  var sourceHidden = document.getElementById('projection-source-input');
+  var projZone = document.getElementById('projections-zone');
+  var projFileInput = document.getElementById('projections');
+  var stalenessEl = document.getElementById('staleness-label');
+
+  sourceRadios.forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      sourceHidden.value = radio.value;
+      if (radio.value === 'auto') {
+        if (projZone) projZone.style.display = 'none';
+        if (projFileInput) {
+          projFileInput.removeAttribute('required');
+          projFileInput.value = '';
+        }
+        if (stalenessEl) stalenessEl.style.display = '';
+      } else {
+        if (projZone) projZone.style.display = '';
+        if (projFileInput) projFileInput.setAttribute('required', '');
+        if (stalenessEl) stalenessEl.style.display = 'none';
       }
     });
   });

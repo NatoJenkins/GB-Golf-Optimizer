@@ -313,6 +313,40 @@ main {
   font-weight: 500;
 }
 
+/* -- Source selector -- */
+
+.source-selector {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.source-radio {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.source-radio:has(input[disabled]) {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.staleness-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.staleness-label.stale {
+  color: var(--text-muted);
+}
+
 /* ── Buttons ─────────────────────────────────────────────── */
 
 button[type="submit"] {
