@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Automated Projection Fetching
-status: completed
-stopped_at: Phase 11 context gathered
-last_updated: "2026-03-26T01:52:30.127Z"
-last_activity: 2026-03-26 — Phase 10 complete (source selector UI + tests, visual verification approved)
+status: in-progress
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-26T02:22:38Z"
+last_activity: 2026-03-26 — Phase 11 plan 01 complete (PRAGMA fix + deploy migration step)
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_plans: 7
+  completed_plans: 6
+  percent: 86
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Generate the best possible cash contest lineups from the user's available player cards, maximizing expected score within salary and collection constraints.
-**Current focus:** v1.2 Automated Projection Fetching — Phase 10 complete, Phase 11 next (Deploy and Verification)
+**Current focus:** v1.2 Automated Projection Fetching — Phase 11 in progress (Deploy and Verification)
 
 ## Current Position
 
-Phase: 10 of 11 (Projection Source Selector) — third phase of v1.2
-Plan: 2 of 2 (10-02 complete — source selector UI + test suite)
-Status: Phase 10 complete
-Last activity: 2026-03-26 — Phase 10 complete (source selector UI + tests, visual verification approved)
+Phase: 11 of 11 (Deploy and Verification) — fourth phase of v1.2
+Plan: 1 of 2 (11-01 complete — PRAGMA fix + deploy migration step)
+Status: In progress
+Last activity: 2026-03-26 — Phase 11 plan 01 complete (PRAGMA fix + deploy migration step)
 
-Progress: [##########] 100% (2/2 plans done in Phase 10)
+Progress: [########░░] 86% (6/7 plans done overall)
 
 ## Accumulated Context
 
@@ -58,6 +58,7 @@ Recent decisions affecting current work:
 - Phase 10: Staleness threshold: 7 days (is_stale flag in _get_latest_fetch)
 - Phase 10: Conditional required attribute on projections file input -- only required when CSV source active
 - Phase 10: Hidden input projection_source synced by JS from radio buttons for reliable form submission
+- Phase 11: Used session.get_bind().dialect.name instead of session.bind.dialect.name for Flask-SQLAlchemy scoped session compatibility
 
 ### Pending Todos
 
@@ -76,9 +77,10 @@ None — DataGolf API field names confirmed, API key working.
 | 09 | 02 | 3min | 2 | 3 |
 | 10 | 01 | 3min | 2 | 3 |
 | 10 | 02 | 4min | 2 | 4 |
+| 11 | 01 | 4min | 2 | 3 |
 
 ## Session Continuity
 
-Last session: 2026-03-26T01:52:30.124Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-deploy-and-verification/11-CONTEXT.md
+Last session: 2026-03-26T02:22:38Z
+Stopped at: Completed 11-01-PLAN.md
+Resume file: .planning/phases/11-deploy-and-verification/11-01-SUMMARY.md

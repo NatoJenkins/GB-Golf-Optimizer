@@ -92,7 +92,7 @@ Plans:
   2. Both projection sources (DataGolf and CSV upload) produce correct optimizer results in the deployed app at gameblazers.silverreyes.net/golf
   3. PostgreSQL connection pool stays bounded under normal use (verified via `pg_stat_activity`)
   4. Staleness label displays correct tournament name and relative age for both current-week and prior-week projection states
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 11-01-PLAN.md — Fix PRAGMA PostgreSQL bug in fetcher.py, update deploy.sh with migration step and .venv exclusion
 - [ ] 11-02-PLAN.md — Rewrite DEPLOY.md as authoritative v1.2 guide, production deployment and end-to-end verification checkpoint
@@ -113,7 +113,7 @@ Plans:
 | 8. Database Foundation | v1.2 | 1/1 | Complete | 2026-03-25 |
 | 9. DataGolf Fetcher | v1.2 | 2/2 | Complete | 2026-03-25 |
 | 10. Projection Source Selector | v1.2 | Complete    | 2026-03-26 | 2026-03-26 |
-| 11. Deploy and Verification | v1.2 | 0/2 | Not started | - |
+| 11. Deploy and Verification | 1/2 | In Progress|  | - |
 
 ---
 *Roadmap created: 2026-03-13*
