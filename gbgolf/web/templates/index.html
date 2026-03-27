@@ -197,7 +197,7 @@
               <td data-sort="{{ card.collection }}">{{ card.collection }}</td>
               <td data-sort="{{ card.salary }}">${{ card.salary }}</td>
               <td data-sort="{{ card.multiplier }}">{{ card.multiplier }}</td>
-              <td data-sort="{{ card.projected_score or 0 }}">{{ "%.2f"|format(card.projected_score or 0.0) }}</td>
+              <td data-sort="{{ card.effective_value or card.projected_score or 0 }}">{{ "%.2f"|format(card.effective_value or card.projected_score or 0.0) }}</td>
             </tr>
             {% endfor %}
             {% endif %}
@@ -262,7 +262,7 @@
             <td>{{ card.collection }}</td>
             <td>${{ card.salary }}</td>
             <td>{{ card.multiplier }}</td>
-            <td>{{ "%.2f"|format(card.projected_score or 0.0) }}</td>
+            <td>{{ "%.2f"|format(card.effective_value or card.projected_score or 0.0) }}</td>
           </tr>
           {% endfor %}
         </tbody>
