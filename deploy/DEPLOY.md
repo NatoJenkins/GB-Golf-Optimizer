@@ -172,15 +172,19 @@ timedatectl
 # Edit crontab for the deploy user (NOT root)
 crontab -e
 
-# Runs at 2pm UTC and 10pm UTC on Tuesday and Wednesday
-# 2pm UTC = 10am EDT / 9am EST — DataGolf publishes by this time
-# 10pm UTC = 6pm EDT / 5pm EST — final lock-in before Thursday tee times
-0 14,22 * * 2,3 cd /opt/GBGolfOptimizer && FLASK_APP=gbgolf.web:create_app .venv/bin/flask fetch-projections >> logs/fetch.log 2>&1
+# Every 2 hours, 10am–10pm EDT, Tuesday and Wednesday only.
+# 8pm and 10pm EDT cross midnight UTC, so they run on Wed/Thu UTC.
+# 10am–6pm EDT = 14–22 UTC same day (Tue/Wed)
+0 14,16,18,20,22 * * 2,3 cd /opt/GBGolfOptimizer && FLASK_APP=gbgolf.web:create_app .venv/bin/flask fetch-projections >> logs/fetch.log 2>&1
+# 8pm EDT = 00:00 UTC next day (Wed/Thu)
+0 0 * * 3,4 cd /opt/GBGolfOptimizer && FLASK_APP=gbgolf.web:create_app .venv/bin/flask fetch-projections >> logs/fetch.log 2>&1
+# 10pm EDT = 02:00 UTC next day (Wed/Thu)
+0 2 * * 3,4 cd /opt/GBGolfOptimizer && FLASK_APP=gbgolf.web:create_app .venv/bin/flask fetch-projections >> logs/fetch.log 2>&1
 ```
 
 **Notes:**
-- 4 fetches per week: Tue 2pm, Tue 10pm, Wed 2pm, Wed 10pm UTC
-- Fetching twice per day is safe — the command is idempotent (replaces stale data cleanly)
+- 14 fetches per week: 7 per day on Tue and Wed (10am, 12pm, 2pm, 4pm, 6pm, 8pm, 10pm EDT)
+- Fetching frequently is safe — the command is idempotent (replaces stale data cleanly)
 - Run as the `deploy` user, NOT root
 - The `logs/` directory must exist (created in Step 4)
 - `FLASK_APP` is required because cron runs with a minimal environment; once `create_app()` runs, `load_dotenv()` picks up `DATABASE_URL` and `DATAGOLF_API_KEY` from `.env`

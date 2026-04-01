@@ -4,14 +4,11 @@ DataGolf projection fetcher for GB Golf Optimizer.
 Fetches player projections from the DataGolf fantasy-projection-defaults API,
 normalizes player names, and writes them to the fetches + projections tables.
 
-Cron schedule for Phase 11 VPS deployment:
-    # Tuesday and Wednesday at 8:00 AM Eastern Time
-    # Winter (EST = UTC-5): 0 13 * * 2,3
-    # Summer (EDT = UTC-4): 0 12 * * 2,3
-    # Verify VPS timezone with `timedatectl` before setting.
-    # Example crontab entry (winter):
-    #   0 13 * * 2,3 cd /var/www/gbgolf && FLASK_APP=gbgolf.web:create_app .venv/bin/flask fetch-projections
-    # The .env file must be in the project root with DATAGOLF_API_KEY set.
+Cron schedule (VPS runs UTC, EDT = UTC-4):
+    Every 2 hours, 10am–10pm EDT, Tuesday and Wednesday only.
+    0 14,16,18,20,22 * * 2,3  (10am–6pm EDT, same UTC day)
+    0 0 * * 3,4               (8pm EDT, midnight UTC next day)
+    0 2 * * 3,4               (10pm EDT, 2am UTC next day)
 """
 import os
 from datetime import datetime, UTC
