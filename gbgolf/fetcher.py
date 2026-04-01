@@ -82,7 +82,23 @@ def write_fetch_log(log_dir: str, line: str) -> None:
 # Database writes (atomic upsert)
 # ---------------------------------------------------------------------------
 
-def write_projections(session, tournament_name: str, tour: str, players: list[dict]) -> int:
+def parse_datagolf_updated_at(raw: str | None) -> "datetime | None":
+    """Parse DataGolf 'last_updated' string to an aware UTC datetime.
+
+    Accepts formats like "2026-03-25 12:00:00 UTC" or ISO 8601.
+    Returns None if raw is absent or unparseable.
+    """
+    if not raw:
+        return None
+    try:
+        # Handle "YYYY-MM-DD HH:MM:SS UTC"
+        cleaned = raw.replace(" UTC", "+00:00").replace(" ", "T", 1)
+        return datetime.fromisoformat(cleaned)
+    except (ValueError, TypeError):
+        return None
+
+
+def write_projections(session, tournament_name: str, tour: str, players: list[dict], datagolf_updated_at=None) -> int:
     """Atomic upsert: delete stale data for this tournament, insert fresh batch.
 
     Uses DELETE CASCADE on fetches to remove old projections, then INSERTs
@@ -103,8 +119,8 @@ def write_projections(session, tournament_name: str, tour: str, players: list[di
     # INSERT new fetch row
     result = session.execute(
         text(
-            "INSERT INTO fetches (tournament_name, fetched_at, player_count, source, tour) "
-            "VALUES (:tn, :fa, :pc, :src, :tour) RETURNING id"
+            "INSERT INTO fetches (tournament_name, fetched_at, player_count, source, tour, datagolf_updated_at) "
+            "VALUES (:tn, :fa, :pc, :src, :tour, :dg_ua) RETURNING id"
         ),
         {
             "tn": tournament_name,
@@ -112,6 +128,7 @@ def write_projections(session, tournament_name: str, tour: str, players: list[di
             "pc": len(players),
             "src": "datagolf",
             "tour": tour,
+            "dg_ua": datagolf_updated_at,
         },
     )
     fetch_id = result.scalar_one()
@@ -186,6 +203,7 @@ def run_fetch(log_dir: str = "logs") -> str:
     data = response.json()
     raw_players = data.get("projections", [])
     tournament_name = data.get("event_name", "Unknown Event")
+    datagolf_updated_at = parse_datagolf_updated_at(data.get("last_updated"))
 
     # Validate through Pydantic boundary model
     players = [_DataGolfPlayerProjection.model_validate(item) for item in raw_players]
@@ -206,7 +224,7 @@ def run_fetch(log_dir: str = "logs") -> str:
         })
 
     # --- Atomic DB write ---
-    fetch_id = write_projections(db.session, tournament_name, "pga", players_list)
+    fetch_id = write_projections(db.session, tournament_name, "pga", players_list, datagolf_updated_at)
 
     # --- Log success ---
     write_fetch_log(

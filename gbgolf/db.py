@@ -16,6 +16,7 @@ fetches = db.Table(
     sa.Column("player_count", sa.Integer, nullable=False),
     sa.Column("source", sa.String, nullable=False),
     sa.Column("tour", sa.String, nullable=False),
+    sa.Column("datagolf_updated_at", sa.DateTime(timezone=True), nullable=True),
 )
 
 projections = db.Table(

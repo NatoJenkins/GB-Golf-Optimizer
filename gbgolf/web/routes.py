@@ -59,7 +59,7 @@ def _deserialize_cards(json_str: str) -> list:
 def _get_latest_fetch():
     """Query latest fetch record for staleness label. Returns dict or None."""
     row = db.session.execute(
-        text("SELECT tournament_name, fetched_at FROM fetches ORDER BY fetched_at DESC LIMIT 1")
+        text("SELECT tournament_name, fetched_at, datagolf_updated_at FROM fetches ORDER BY fetched_at DESC LIMIT 1")
     ).mappings().fetchone()
     if row is None:
         return None
@@ -71,10 +71,31 @@ def _get_latest_fetch():
     if fetched_at.tzinfo is None:
         fetched_at = fetched_at.replace(tzinfo=timezone.utc)
     delta = now - fetched_at
+    fetched_at_local = fetched_at.astimezone()
+
+    dg_updated_str = None
+    dg_ua = row["datagolf_updated_at"]
+    if dg_ua is not None:
+        if isinstance(dg_ua, str):
+            dg_ua = datetime.fromisoformat(dg_ua)
+        if dg_ua.tzinfo is None:
+            dg_ua = dg_ua.replace(tzinfo=timezone.utc)
+        dg_ua_local = dg_ua.astimezone()
+        dg_delta = now - dg_ua
+        if dg_delta.days == 0:
+            dg_updated_str = f"DG updated today at {dg_ua_local.strftime('%-I:%M %p')}"
+        elif dg_delta.days == 1:
+            dg_updated_str = f"DG updated yesterday at {dg_ua_local.strftime('%-I:%M %p')}"
+        else:
+            dg_updated_str = f"DG updated {dg_ua_local.strftime('%b %-d')} at {dg_ua_local.strftime('%-I:%M %p')}"
+
     return {
         "tournament_name": row["tournament_name"],
         "days_ago": delta.days,
         "is_stale": delta.days >= 7,
+        "fetched_time": fetched_at_local.strftime("%-I:%M %p"),
+        "fetched_date": fetched_at_local.strftime("%b %-d"),
+        "dg_updated_str": dg_updated_str,
     }
 
 

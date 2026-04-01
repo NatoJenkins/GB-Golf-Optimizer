@@ -53,3 +53,4 @@ None.
 | — | Upload CSV mode description hint (no DataGolf backfill) | 2026-03-26 | 52cfbb6 | — |
 | — | Player pool collapsed by default; lock/exclude descriptions in summary bar | 2026-03-26 | 22bf706 | — |
 | — | Fix lock description: "at least one lineup" not "every lineup" | 2026-03-26 | c1c39d6 | — |
+| — | Fix: player pool and lineup tables were displaying raw projected_score instead of effective_value (score × multiplier); optimizer was always correct, bug was display-only | 2026-03-26 | 2de29cb | — |

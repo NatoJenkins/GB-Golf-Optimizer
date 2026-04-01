@@ -69,11 +69,13 @@
         {% if latest_fetch %}
         <div class="staleness-label{% if latest_fetch.is_stale %} stale{% endif %}"
              id="staleness-label">
-          {{ latest_fetch.tournament_name }} &mdash;
-          {% if latest_fetch.days_ago == 0 %}fetched today
-          {% elif latest_fetch.days_ago == 1 %}fetched 1 day ago
-          {% else %}fetched {{ latest_fetch.days_ago }} days ago
+          <span class="staleness-tournament">{{ latest_fetch.tournament_name }}</span>
+          <span class="staleness-meta">&mdash;
+          {% if latest_fetch.days_ago == 0 %}fetched today at {{ latest_fetch.fetched_time }}
+          {% elif latest_fetch.days_ago == 1 %}fetched yesterday at {{ latest_fetch.fetched_time }}
+          {% else %}fetched {{ latest_fetch.fetched_date }} at {{ latest_fetch.fetched_time }}
           {% endif %}
+          {% if latest_fetch.dg_updated_str %} &middot; {{ latest_fetch.dg_updated_str }}{% endif %}</span>
         </div>
         {% elif not db_has_projections %}
         <div class="staleness-label stale" id="staleness-label">No projections available yet</div>

@@ -380,12 +380,25 @@ main {
 
 .staleness-label {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  color: var(--text);
-  margin-top: 4px;
+  font-size: 0.88rem;
+  margin-top: 6px;
 }
 
-.staleness-label.stale {
+.staleness-tournament {
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.staleness-meta {
+  color: var(--text);
+}
+
+.staleness-label.stale .staleness-tournament {
+  color: var(--text-muted);
+}
+
+.staleness-label.stale .staleness-meta {
   color: var(--text-muted);
 }
 
