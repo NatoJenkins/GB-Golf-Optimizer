@@ -96,6 +96,8 @@ def _get_latest_fetch():
         "fetched_time": fetched_at_local.strftime("%-I:%M %p"),
         "fetched_date": fetched_at_local.strftime("%b %-d"),
         "dg_updated_str": dg_updated_str,
+        "fetched_at_iso": fetched_at.isoformat(),
+        "dg_updated_at_iso": dg_ua.isoformat() if dg_ua is not None else None,
     }
 
 

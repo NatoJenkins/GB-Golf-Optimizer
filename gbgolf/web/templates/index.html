@@ -68,7 +68,9 @@
                value="{{ 'auto' if db_has_projections else 'csv' }}" />
         {% if latest_fetch %}
         <div class="staleness-label{% if latest_fetch.is_stale %} stale{% endif %}"
-             id="staleness-label">
+             id="staleness-label"
+             data-fetch-utc="{{ latest_fetch.fetched_at_iso }}"
+             {% if latest_fetch.dg_updated_at_iso %}data-dg-utc="{{ latest_fetch.dg_updated_at_iso }}"{% endif %}>
           <span class="staleness-tournament">{{ latest_fetch.tournament_name }}</span>
           <span class="staleness-meta">&mdash;
           {% if latest_fetch.days_ago == 0 %}fetched today at {{ latest_fetch.fetched_time }}
@@ -450,6 +452,47 @@
       }
     });
   });
+
+  // --- Reformat staleness timestamps in user's local timezone ---
+  (function() {
+    var el = document.getElementById('staleness-label');
+    if (!el) return;
+    var fetchUtc = el.getAttribute('data-fetch-utc');
+    var dgUtc = el.getAttribute('data-dg-utc');
+    if (!fetchUtc) return;
+
+    function localDaysAgo(date) {
+      var now = new Date();
+      var dMid = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      var nMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((nMid - dMid) / 86400000);
+    }
+
+    function fmtTime(date) {
+      return date.toLocaleString('en-US', {hour: 'numeric', minute: '2-digit', timeZoneName: 'short'});
+    }
+
+    function fmtDate(date) {
+      return date.toLocaleString('en-US', {month: 'short', day: 'numeric'});
+    }
+
+    function buildStr(prefix, date) {
+      var days = localDaysAgo(date);
+      if (days === 0) return prefix + ' today at ' + fmtTime(date);
+      if (days === 1) return prefix + ' yesterday at ' + fmtTime(date);
+      return prefix + ' ' + fmtDate(date) + ' at ' + fmtTime(date);
+    }
+
+    var fetchDate = new Date(fetchUtc);
+    var metaEl = el.querySelector('.staleness-meta');
+    if (!metaEl) return;
+
+    var text = '\u2014 ' + buildStr('fetched', fetchDate);
+    if (dgUtc) {
+      text += ' \u00b7 ' + buildStr('DG updated', new Date(dgUtc));
+    }
+    metaEl.textContent = text;
+  })();
 
   // --- Source selector toggle ---
   var sourceRadios = document.querySelectorAll('input[name="source_radio"]');
