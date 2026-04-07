@@ -50,6 +50,12 @@ Generate the best possible cash contest lineups from the user's available player
 - [ ] Sensitivity analysis — show how lineup changes if a player's projection shifts (ADV-03)
 - [ ] Manual projection refresh from UI without waiting for cron (MGMT-01)
 - [ ] Fetch status dashboard — last fetch time, player count, error history (MGMT-02)
+- [ ] Priority lineup allocation — user specifies how many lineups to prioritize per contest before backfill (ADV-04)
+  - Tier 1: optimize user-specified priority count per contest, sequentially by contest order
+  - Tier 2: backfill remaining (max_entries − priority) slots per contest with leftover cards
+  - UI: input field per contest for priority count (default: max_entries, i.e., current behavior)
+  - Validation: priority count cannot exceed max_entries for that contest
+  - Example: contests with max entries 6/3/2 and priority 3/2/1 → 6 priority lineups first, then 5 backfill
 
 ### Out of Scope
 
