@@ -220,8 +220,7 @@
   {% if lock_reset %}
   <div class="reset-banner">Locks and excludes reset for new upload</div>
   {% endif %}
-  {% set contest_order = ["The Tips", "The Intermediate Tee"] %}
-  {% for contest_name in contest_order %}
+  {% for contest_name in result.lineups %}
   <section class="contest-section">
     <h2>{{ contest_name }}</h2>
 

@@ -16,6 +16,16 @@ from gbgolf.optimizer import optimize
 from gbgolf.optimizer.constraints import ConstraintSet, check_conflicts, check_feasibility
 
 
+def _fmt_time(dt: datetime) -> str:
+    """Format time as '1:30 PM' — cross-platform (no %-I)."""
+    return dt.strftime("%I:%M %p").lstrip("0")
+
+
+def _fmt_month_day(dt: datetime) -> str:
+    """Format date as 'Apr 7' — cross-platform (no %-d)."""
+    return f"{dt.strftime('%b')} {dt.day}"
+
+
 def _serialize_cards(cards: list) -> str:
     """Serialize a list of Card objects to JSON for the hidden form field."""
     return json.dumps([
@@ -83,18 +93,18 @@ def _get_latest_fetch():
         dg_ua_local = dg_ua.astimezone()
         dg_delta = now - dg_ua
         if dg_delta.days == 0:
-            dg_updated_str = f"DG updated today at {dg_ua_local.strftime('%-I:%M %p')}"
+            dg_updated_str = f"DG updated today at {_fmt_time(dg_ua_local)}"
         elif dg_delta.days == 1:
-            dg_updated_str = f"DG updated yesterday at {dg_ua_local.strftime('%-I:%M %p')}"
+            dg_updated_str = f"DG updated yesterday at {_fmt_time(dg_ua_local)}"
         else:
-            dg_updated_str = f"DG updated {dg_ua_local.strftime('%b %-d')} at {dg_ua_local.strftime('%-I:%M %p')}"
+            dg_updated_str = f"DG updated {_fmt_month_day(dg_ua_local)} at {_fmt_time(dg_ua_local)}"
 
     return {
         "tournament_name": row["tournament_name"],
         "days_ago": delta.days,
         "is_stale": delta.days >= 7,
-        "fetched_time": fetched_at_local.strftime("%-I:%M %p"),
-        "fetched_date": fetched_at_local.strftime("%b %-d"),
+        "fetched_time": _fmt_time(fetched_at_local),
+        "fetched_date": _fmt_month_day(fetched_at_local),
         "dg_updated_str": dg_updated_str,
         "fetched_at_iso": fetched_at.isoformat(),
         "dg_updated_at_iso": dg_ua.isoformat() if dg_ua is not None else None,
