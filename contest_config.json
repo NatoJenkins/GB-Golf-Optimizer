@@ -1,17 +1,6 @@
 {
   "contests": [
     {
-      "name": "GB Major",
-      "salary_min": 35000,
-      "salary_max": 70000,
-      "roster_size": 6,
-      "max_entries": 6,
-      "collection_limits": {
-        "Weekly Collection": 3,
-        "Core": 6
-      }
-    },
-    {
       "name": "The Tips",
       "salary_min": 30000,
       "salary_max": 64000,
