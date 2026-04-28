@@ -5,7 +5,7 @@
       "salary_min": 30000,
       "salary_max": 64000,
       "roster_size": 6,
-      "max_entries": 3,
+      "max_entries": 6,
       "collection_limits": {
         "Weekly Collection": 3,
         "Core": 6
@@ -16,7 +16,7 @@
       "salary_min": 20000,
       "salary_max": 52000,
       "roster_size": 5,
-      "max_entries": 2,
+      "max_entries": 4,
       "collection_limits": {
         "Weekly Collection": 2,
         "Core": 5
