@@ -823,6 +823,38 @@ input[type="checkbox"]:disabled {
   color: transparent;
 }
 
+/* ── Entry counts ─────────────────────────────────────────── */
+
+.entry-counts {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #444;
+  border-radius: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+}
+
+.entry-counts legend {
+  padding: 0 0.5rem;
+  font-weight: 600;
+}
+
+.entry-count-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.entry-count-row input[type="number"] {
+  width: 4rem;
+  padding: 0.2rem 0.4rem;
+}
+
+.entry-count-row small {
+  color: #888;
+}
+
 /* ── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 640px) {

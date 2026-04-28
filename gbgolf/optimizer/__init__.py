@@ -94,6 +94,7 @@ def optimize(
     valid_cards: list,
     contests: list,
     constraints: ConstraintSet | None = None,
+    entry_overrides: dict | None = None,
 ) -> OptimizationResult:
     """Generate optimal lineups for each contest.
 
@@ -123,6 +124,11 @@ def optimize(
         contests: list[ContestConfig] defining each contest's constraints
         constraints: ConstraintSet with lock/exclude directives, or None for
             unconstrained optimization
+        entry_overrides: optional dict[str, int] mapping contest name to the
+            desired number of lineups for that contest. Values are clamped to
+            [0, config.max_entries]. Keys not matching any contest are silently
+            ignored. When None or a contest has no override, config.max_entries
+            is used (current default behavior).
 
     Returns:
         OptimizationResult with lineups per contest and any infeasibility notices
@@ -158,8 +164,14 @@ def optimize(
     for config in contests:
         contest_lineups: list = []
 
+        requested = (
+            entry_overrides.get(config.name, config.max_entries)
+            if entry_overrides else config.max_entries
+        )
+        n_entries = max(0, min(requested, config.max_entries))
+
         # Phase 1: generate all lineups with no lock constraints (pure optimal)
-        for entry_num in range(config.max_entries):
+        for entry_num in range(n_entries):
             available = [
                 c for c in valid_cards
                 if _card_key(c) not in used_card_keys
@@ -170,7 +182,7 @@ def optimize(
             if result is None:
                 slot = len(contest_lineups) + 1
                 infeasibility_notices.append(
-                    f"{config.name}: lineup {slot} of {config.max_entries} "
+                    f"{config.name}: lineup {slot} of {n_entries} "
                     f"could not be built (infeasible)"
                 )
             else:

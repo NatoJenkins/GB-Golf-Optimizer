@@ -16,6 +16,25 @@ from gbgolf.optimizer import optimize
 from gbgolf.optimizer.constraints import ConstraintSet, check_conflicts, check_feasibility
 
 
+def _parse_entry_overrides(form, contests):
+    """Parse 'entries_<index>' form fields into a dict keyed by contest name.
+
+    Values are clamped to [0, contest.max_entries]. Missing or non-integer
+    fields are skipped (the optimizer falls back to max_entries for those).
+    """
+    overrides = {}
+    for idx, c in enumerate(contests):
+        raw = form.get(f"entries_{idx}")
+        if raw is None or raw == "":
+            continue
+        try:
+            n = int(raw)
+        except (ValueError, TypeError):
+            continue
+        overrides[c.name] = max(0, min(n, c.max_entries))
+    return overrides
+
+
 def _fmt_time(dt: datetime) -> str:
     """Format time as '1:30 PM' — cross-platform (no %-I)."""
     return dt.strftime("%I:%M %p").lstrip("0")
@@ -127,19 +146,36 @@ bp = Blueprint("main", __name__)
 def index():
     """Main page: upload form (GET) and optimization results (POST)."""
     if request.method == "GET":
-        return render_template("index.html", **_db_template_vars())
+        return render_template(
+            "index.html",
+            contests=current_app.config["CONTESTS"],
+            **_db_template_vars(),
+        )
 
     # --- POST: handle file uploads ---
     roster_file = request.files.get("roster")
     if not roster_file or roster_file.filename == "":
-        return render_template("index.html", error="Roster file is required.", **_db_template_vars())
+        return render_template(
+            "index.html",
+            error="Roster file is required.",
+            contests=current_app.config["CONTESTS"],
+            **_db_template_vars(),
+        )
 
     projection_source = request.form.get("projection_source", "csv")
 
     # Validate: projections file required for CSV and hybrid sources
     projections_file = request.files.get("projections")
     if projection_source in ("csv", "hybrid") and (not projections_file or projections_file.filename == ""):
-        return render_template("index.html", error="Projections file is required.", **_db_template_vars())
+        return render_template(
+            "index.html",
+            error="Projections file is required.",
+            contests=current_app.config["CONTESTS"],
+            **_db_template_vars(),
+        )
+
+    contests = current_app.config["CONTESTS"]
+    entry_overrides = _parse_entry_overrides(request.form, contests)
 
     # CLEAR lock/exclude session keys on file upload (UI-04)
     lock_reset = False
@@ -171,20 +207,35 @@ def index():
             validation = validate_pipeline_auto(roster_tmp, config_path)
         elif projection_source == "hybrid":
             if not projections_file or projections_file.filename == "":
-                return render_template("index.html", error="Projections file is required.", **_db_template_vars())
+                return render_template(
+                    "index.html",
+                    error="Projections file is required.",
+                    contests=contests,
+                    **_db_template_vars(),
+                )
             with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as pf:
                 projections_file.save(pf)
                 projections_tmp = pf.name
             validation = validate_pipeline_hybrid(roster_tmp, projections_tmp, config_path)
         else:
             if not projections_file:
-                return render_template("index.html", error="Projections file is required.", **_db_template_vars())
+                return render_template(
+                    "index.html",
+                    error="Projections file is required.",
+                    contests=contests,
+                    **_db_template_vars(),
+                )
             with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as pf:
                 projections_file.save(pf)
                 projections_tmp = pf.name
             validation = validate_pipeline(roster_tmp, projections_tmp, config_path)
 
-        result = optimize(validation.valid_cards, current_app.config["CONTESTS"], constraints=constraints)
+        result = optimize(
+            validation.valid_cards,
+            contests,
+            constraints=constraints,
+            entry_overrides=entry_overrides,
+        )
 
         card_pool_json = _serialize_cards(validation.valid_cards)
         return render_template(
@@ -198,11 +249,18 @@ def index():
             locked_card_keys=set(),
             locked_golfer_set=set(),
             excluded_player_set=set(),
+            contests=contests,
+            entry_overrides=entry_overrides,
             **_db_template_vars(),
         )
 
     except ValueError as exc:
-        return render_template("index.html", error=str(exc), **_db_template_vars())
+        return render_template(
+            "index.html",
+            error=str(exc),
+            contests=contests,
+            **_db_template_vars(),
+        )
 
     finally:
         if roster_tmp and os.path.exists(roster_tmp):
@@ -255,6 +313,9 @@ def reoptimize():
     locked_golfers = [v for v in request.form.getlist("lock_golfer") if v]
     excluded_players = [v for v in request.form.getlist("exclude_golfer") if v]
 
+    contests = current_app.config["CONTESTS"]
+    entry_overrides = _parse_entry_overrides(request.form, contests)
+
     # Write parsed constraints to session
     session["locked_cards"] = [list(k) for k in locked_cards]
     session["locked_golfers"] = locked_golfers
@@ -278,7 +339,7 @@ def reoptimize():
             **_db_template_vars(),
         )
 
-    for contest_config in current_app.config["CONTESTS"]:
+    for contest_config in contests:
         feasibility_result = check_feasibility(constraints, valid_cards, contest_config)
         if feasibility_result is not None:
             return render_template(
@@ -286,10 +347,17 @@ def reoptimize():
                 error=feasibility_result.message,
                 show_results=False,
                 card_pool_json=card_pool_json,
+                contests=contests,
+                entry_overrides=entry_overrides,
                 **_db_template_vars(),
             )
 
-    result = optimize(valid_cards, current_app.config["CONTESTS"], constraints=constraints)
+    result = optimize(
+        valid_cards,
+        contests,
+        constraints=constraints,
+        entry_overrides=entry_overrides,
+    )
 
     return render_template(
         "index.html",
@@ -301,5 +369,7 @@ def reoptimize():
         locked_card_keys=set(locked_cards),
         locked_golfer_set=set(locked_golfers),
         excluded_player_set=set(excluded_players),
+        contests=contests,
+        entry_overrides=entry_overrides,
         **_db_template_vars(),
     )

@@ -111,6 +111,21 @@
         </label>
       </div>
       </div>
+      {% if contests %}
+      <fieldset class="entry-counts">
+        <legend>Lineups per contest</legend>
+        {% for c in contests %}
+        <label class="entry-count-row">
+          <span class="entry-count-name">{{ c.name }}</span>
+          <input type="number"
+                 name="entries_{{ loop.index0 }}"
+                 min="0" max="{{ c.max_entries }}"
+                 value="{{ (entry_overrides or {}).get(c.name, c.max_entries) }}" />
+          <small>(max {{ c.max_entries }})</small>
+        </label>
+        {% endfor %}
+      </fieldset>
+      {% endif %}
       <button type="submit">Generate Lineups</button>
     </form>
   </details>
@@ -211,6 +226,21 @@
     </details>
 
     <div id="constraint-count" style="display:none;"></div>
+    {% if contests %}
+    <fieldset class="entry-counts">
+      <legend>Lineups per contest</legend>
+      {% for c in contests %}
+      <label class="entry-count-row">
+        <span class="entry-count-name">{{ c.name }}</span>
+        <input type="number"
+               name="entries_{{ loop.index0 }}"
+               min="0" max="{{ c.max_entries }}"
+               value="{{ (entry_overrides or {}).get(c.name, c.max_entries) }}" />
+        <small>(max {{ c.max_entries }})</small>
+      </label>
+      {% endfor %}
+    </fieldset>
+    {% endif %}
     <button type="submit">Re-Optimize</button>
   </form>
   {% endif %}

@@ -850,3 +850,50 @@ def test_hybrid_radio_enabled_with_db(db_client):
     tag_end = html.index("/>", hybrid_pos) + 2
     hybrid_tag = html[tag_start:tag_end]
     assert "disabled" not in hybrid_tag
+
+
+# ---------------------------------------------------------------------------
+# Tests: per-contest entry-count overrides
+# ---------------------------------------------------------------------------
+
+def _tips_section(html: str) -> str:
+    """Slice out the The Tips contest results section (anchored on <h2>) so
+    per-section assertions don't bleed into the entry-count fieldset or the
+    The Intermediate Tee section."""
+    start = html.index("<h2>The Tips</h2>")
+    end = html.index("<h2>The Intermediate Tee</h2>", start)
+    return html[start:end]
+
+
+def test_post_index_with_entry_override_limits_lineups(client):
+    """POST / with entries_0=1 produces only 1 lineup for The Tips."""
+    response = client.post(
+        "/",
+        data={
+            "roster": (io.BytesIO(SAMPLE_ROSTER_CSV.encode("utf-8")), "roster.csv"),
+            "projections": (io.BytesIO(SAMPLE_PROJECTIONS_CSV.encode("utf-8")), "projections.csv"),
+            "entries_0": "1",
+        },
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    tips = _tips_section(html)
+    assert "Lineup 1" in tips
+    assert "Lineup 2" not in tips
+
+
+def test_post_reoptimize_with_entry_override(client):
+    """POST /reoptimize with entries_0=2 produces exactly 2 lineups for The Tips."""
+    card_pool_json = _build_card_pool_json()
+    response = client.post(
+        "/reoptimize",
+        data={"card_pool": card_pool_json, "entries_0": "2"},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    tips = _tips_section(html)
+    assert "Lineup 1" in tips
+    assert "Lineup 2" in tips
+    assert "Lineup 3" not in tips

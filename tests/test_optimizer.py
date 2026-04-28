@@ -352,3 +352,35 @@ def test_infeasible_card_locks_generate_notices_but_not_block_free_lineups():
     assert len(result.lineups["The Tips"]) == 3, (
         "Free lineup slots should still be built when locked cards are individually infeasible"
     )
+
+
+# ---------------------------------------------------------------------------
+# Tests: entry_overrides (per-contest lineup count at runtime)
+# ---------------------------------------------------------------------------
+
+def test_entry_overrides_reduces_count():
+    """entry_overrides limits The Tips to 1 lineup; The Intermediate Tee uses default (2)."""
+    result = optimize(ALL_CARDS, ALL_CONTESTS, entry_overrides={"The Tips": 1})
+    assert len(result.lineups["The Tips"]) == 1
+    assert len(result.lineups["The Intermediate Tee"]) == 2
+
+
+def test_entry_overrides_zero_skips_contest():
+    """entry_overrides of 0 produces no lineups for that contest and no infeasibility notice."""
+    result = optimize(ALL_CARDS, ALL_CONTESTS, entry_overrides={"The Tips": 0})
+    assert result.lineups["The Tips"] == []
+    assert not any("The Tips" in n for n in result.infeasibility_notices)
+
+
+def test_entry_overrides_clamped_to_max():
+    """entry_overrides above max_entries is clamped down to max_entries."""
+    result = optimize(ALL_CARDS, ALL_CONTESTS, entry_overrides={"The Tips": 99})
+    assert len(result.lineups["The Tips"]) == 3  # max_entries for The Tips
+
+
+def test_entry_overrides_unknown_contest_ignored():
+    """Override keys that don't match any contest are silently ignored; defaults apply."""
+    result = optimize(ALL_CARDS, ALL_CONTESTS, entry_overrides={"Bogus Contest": 5})
+    assert len(result.lineups["The Tips"]) == 3
+    assert len(result.lineups["The Intermediate Tee"]) == 2
+
