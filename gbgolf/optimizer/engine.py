@@ -68,12 +68,17 @@ def _solve_one_lineup(
         if len(indices) > 1:
             prob += pulp.lpSum(x[i] for i in indices) <= 1
 
-    # Card lock: force specific card into this lineup (LOCK-01)
+    # Card lock: at least one card matching each locked composite key in this lineup (LOCK-01).
+    # Uses sum >= 1 (not x[i] == 1 per match) so duplicate cards don't get both forced in,
+    # which would violate the same-player-once-per-lineup constraint above.
     if locked_card_keys:
-        for i, c in enumerate(cards):
-            key = (c.player, c.salary, c.multiplier, c.collection)
-            if key in locked_card_keys:
-                prob += x[i] == 1
+        for locked_key in locked_card_keys:
+            matching = [
+                i for i, c in enumerate(cards)
+                if (c.player, c.salary, c.multiplier, c.collection) == locked_key
+            ]
+            if matching:
+                prob += pulp.lpSum(x[i] for i in matching) >= 1
 
     # Golfer lock: at least one card for this player in this lineup (LOCK-02)
     if locked_golfer_names:

@@ -54,6 +54,7 @@ def _serialize_cards(cards: list) -> str:
             "multiplier": c.multiplier,
             "collection": c.collection,
             "expires": c.expires.isoformat() if c.expires else None,
+            "instance_id": c.instance_id,
             "projected_score": c.projected_score,
             "effective_value": c.effective_value,
             "franchise": c.franchise,
@@ -64,10 +65,21 @@ def _serialize_cards(cards: list) -> str:
 
 
 def _deserialize_cards(json_str: str) -> list:
-    """Reconstruct Card objects from a JSON string. Returns list[Card]."""
+    """Reconstruct Card objects from a JSON string. Returns list[Card].
+
+    Every card payload must carry an ``instance_id`` field. Stale session data
+    from before this field existed is rejected with a ``ValueError`` so the
+    route handler can show the user a clear stale-session message instead of
+    silently fabricating IDs that could collide with real ones.
+    """
     raw = json.loads(json_str)
     cards = []
-    for d in raw:
+    for idx, d in enumerate(raw):
+        if "instance_id" not in d:
+            raise ValueError(
+                f"Card payload at index {idx} is missing 'instance_id' "
+                f"(stale session data; please re-upload the roster)"
+            )
         expires = None
         if d.get("expires"):
             expires = date.fromisoformat(d["expires"])
@@ -77,6 +89,7 @@ def _deserialize_cards(json_str: str) -> list:
             multiplier=float(d["multiplier"]),
             collection=d["collection"],
             expires=expires,
+            instance_id=int(d["instance_id"]),
             projected_score=d.get("projected_score"),
             effective_value=d.get("effective_value"),
             franchise=d.get("franchise", ""),

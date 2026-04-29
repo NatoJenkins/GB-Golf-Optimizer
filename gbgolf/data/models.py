@@ -11,6 +11,7 @@ class Card:
     multiplier: float
     collection: str      # e.g. "Core", "Weekly Collection"
     expires: Optional[date]
+    instance_id: int     # Unique per-row identifier; lets the optimizer distinguish duplicate cards
     projected_score: Optional[float] = None
     effective_value: Optional[float] = None  # projected_score * multiplier
     # Preserved as-is from CSV — Phase 2 will interpret these if needed

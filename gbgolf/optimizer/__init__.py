@@ -37,7 +37,7 @@ def _card_key(c) -> tuple:
 def _find_best_replacement(
     contest_lineups: list,
     valid_cards: list,
-    used_card_keys: set,
+    used_instance_ids: set,
     excluded_card_keys: set,
     excluded_player_names: set,
     config: ContestConfig,
@@ -51,7 +51,7 @@ def _find_best_replacement(
     effective value. Returns the index and cards of the best replacement found,
     or (-1, None) if no lineup slot can accommodate the lock.
 
-    The used_card_keys set is temporarily mutated during the search but is
+    The used_instance_ids set is temporarily mutated during the search but is
     fully restored before returning.
     """
     best_ev = -1.0
@@ -61,11 +61,11 @@ def _find_best_replacement(
     for i, lineup in enumerate(contest_lineups):
         # Temporarily return this lineup's cards to the available pool
         for card in lineup.cards:
-            used_card_keys.discard(_card_key(card))
+            used_instance_ids.discard(card.instance_id)
 
         available = [
             c for c in valid_cards
-            if _card_key(c) not in used_card_keys
+            if c.instance_id not in used_instance_ids
             and _card_key(c) not in excluded_card_keys
             and c.player not in excluded_player_names
         ]
@@ -85,7 +85,7 @@ def _find_best_replacement(
 
         # Restore this lineup's cards before trying the next slot
         for card in lineup.cards:
-            used_card_keys.add(_card_key(card))
+            used_instance_ids.add(card.instance_id)
 
     return best_idx, best_result
 
@@ -136,6 +136,17 @@ def optimize(
     if constraints is None:
         constraints = ConstraintSet()
 
+    # Boundary invariant: every input card must carry a non-negative instance_id
+    # so the optimizer can disambiguate duplicate cards (same composite key,
+    # multiple owned copies). parse_roster_csv assigns these from row index;
+    # _deserialize_cards rejects payloads where any instance_id is missing.
+    for c in valid_cards:
+        if c.instance_id < 0:
+            raise AssertionError(
+                f"Card {c.player!r} has invalid instance_id={c.instance_id}; "
+                f"every card reaching the optimizer must have instance_id >= 0"
+            )
+
     # Pre-solve conflict check (runs once before any lineup is built)
     if error := check_conflicts(constraints):
         return OptimizationResult(
@@ -159,7 +170,10 @@ def optimize(
 
     lineups: dict = {}
     infeasibility_notices: list = []
-    used_card_keys: set = set()
+    # Track consumed cards by instance_id, not composite key — a user may own
+    # duplicate cards (same player+salary+multiplier+collection across CSV rows)
+    # and the platform allows deploying each copy in a separate lineup.
+    used_instance_ids: set = set()
 
     for config in contests:
         contest_lineups: list = []
@@ -174,7 +188,7 @@ def optimize(
         for entry_num in range(n_entries):
             available = [
                 c for c in valid_cards
-                if _card_key(c) not in used_card_keys
+                if c.instance_id not in used_instance_ids
                 and _card_key(c) not in excluded_card_keys
                 and c.player not in excluded_player_names
             ]
@@ -187,7 +201,7 @@ def optimize(
                 )
             else:
                 for card in result:
-                    used_card_keys.add(_card_key(card))
+                    used_instance_ids.add(card.instance_id)
                 contest_lineups.append(Lineup(contest=config.name, cards=result))
 
         # Phase 2: satisfy any locks not naturally placed in Phase 1.
@@ -200,7 +214,7 @@ def optimize(
                 )
                 return
             idx, best_result = _find_best_replacement(
-                contest_lineups, valid_cards, used_card_keys,
+                contest_lineups, valid_cards, used_instance_ids,
                 excluded_card_keys, excluded_player_names, config,
                 locked_card_keys=locked_card_keys,
                 locked_golfer_names=locked_golfer_names,
@@ -213,9 +227,9 @@ def optimize(
             # Replace the chosen lineup slot with the lock-constrained result
             old_lineup = contest_lineups[idx]
             for card in old_lineup.cards:
-                used_card_keys.discard(_card_key(card))
+                used_instance_ids.discard(card.instance_id)
             for card in best_result:
-                used_card_keys.add(_card_key(card))
+                used_instance_ids.add(card.instance_id)
             contest_lineups[idx] = Lineup(contest=config.name, cards=best_result)
 
         for card_key in constraints.locked_cards:
@@ -230,7 +244,7 @@ def optimize(
 
         lineups[config.name] = contest_lineups
 
-    unused_cards = [c for c in valid_cards if _card_key(c) not in used_card_keys]
+    unused_cards = [c for c in valid_cards if c.instance_id not in used_instance_ids]
 
     return OptimizationResult(
         lineups=lineups,

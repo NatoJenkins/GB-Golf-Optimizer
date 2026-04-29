@@ -30,7 +30,7 @@ def _parse_expires(raw: str) -> Optional[date]:
         return None
 
 
-def _row_to_card(row: dict) -> Card:
+def _row_to_card(row: dict, instance_id: int) -> Card:
     salary_raw = row.get("Salary", "0").strip()
     salary = int(float(salary_raw)) if salary_raw else 0
     multiplier_raw = row.get("Multiplier", "1.0").strip()
@@ -42,13 +42,19 @@ def _row_to_card(row: dict) -> Card:
         multiplier=multiplier,
         collection=row.get("Collection", "").strip(),
         expires=expires,
+        instance_id=instance_id,
         franchise=row.get("Franchise", "").strip(),
         rookie=row.get("Rookie", "").strip(),
     )
 
 
 def parse_roster_csv(path: str) -> list[Card]:
-    """Parse GameBlazers roster CSV. Raises ValueError on missing required columns."""
+    """Parse GameBlazers roster CSV. Raises ValueError on missing required columns.
+
+    Each card receives a unique ``instance_id`` derived from its row index, so
+    the optimizer can distinguish duplicate rows (same player+salary+multiplier
+    +collection) representing multiple owned copies of one card.
+    """
     with open(path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         if reader.fieldnames is None:
@@ -58,4 +64,4 @@ def parse_roster_csv(path: str) -> list[Card]:
             raise ValueError(
                 f"Roster CSV missing required columns: {sorted(missing)}"
             )
-        return [_row_to_card(row) for row in reader]
+        return [_row_to_card(row, instance_id=idx) for idx, row in enumerate(reader)]

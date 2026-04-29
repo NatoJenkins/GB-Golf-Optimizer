@@ -21,7 +21,16 @@ from gbgolf.optimizer.constraints import (
 # Card builder helper (same pattern as test_optimizer.py)
 # ---------------------------------------------------------------------------
 
-def make_card(player, salary, multiplier, collection, projected_score, effective_value=None):
+_next_instance_id = 0
+
+
+def make_card(player, salary, multiplier, collection, projected_score, effective_value=None,
+              instance_id=None):
+    """Test card builder. Auto-assigns a monotonic instance_id unless overridden."""
+    global _next_instance_id
+    if instance_id is None:
+        instance_id = _next_instance_id
+        _next_instance_id += 1
     ev = effective_value if effective_value is not None else round(projected_score * multiplier, 4)
     return Card(
         player=player,
@@ -29,6 +38,7 @@ def make_card(player, salary, multiplier, collection, projected_score, effective
         multiplier=multiplier,
         collection=collection,
         expires=date(2026, 12, 31),
+        instance_id=instance_id,
         projected_score=projected_score,
         effective_value=ev,
     )

@@ -8,6 +8,9 @@ Covers:
 - Lock/exclude behavioral tests (ConstraintSet integration)
 """
 from datetime import date
+
+import pytest
+
 from gbgolf.data.models import Card
 from gbgolf.data.config import ContestConfig
 from gbgolf.optimizer import optimize, OptimizationResult, Lineup
@@ -18,7 +21,21 @@ from gbgolf.optimizer.constraints import ConstraintSet
 # Card builder helper
 # ---------------------------------------------------------------------------
 
-def make_card(player, salary, multiplier, collection, projected_score, effective_value=None):
+_next_instance_id = 0
+
+
+def make_card(player, salary, multiplier, collection, projected_score, effective_value=None,
+              instance_id=None):
+    """Test card builder. Auto-assigns a monotonic instance_id unless overridden.
+
+    Pass instance_id explicitly when a test needs to fabricate composite-key
+    duplicates that share player+salary+multiplier+collection but have distinct
+    IDs (the on-platform "I own two of this card" case).
+    """
+    global _next_instance_id
+    if instance_id is None:
+        instance_id = _next_instance_id
+        _next_instance_id += 1
     ev = effective_value if effective_value is not None else round(projected_score * multiplier, 4)
     return Card(
         player=player,
@@ -26,6 +43,7 @@ def make_card(player, salary, multiplier, collection, projected_score, effective
         multiplier=multiplier,
         collection=collection,
         expires=date(2026, 12, 31),
+        instance_id=instance_id,
         projected_score=projected_score,
         effective_value=ev,
     )
@@ -156,34 +174,38 @@ def test_intermediate_lineup_count():
 # ---------------------------------------------------------------------------
 
 def test_no_card_reuse_across_contests():
-    """Card composite keys used in Tips lineups are disjoint from those in Intermediate Tee lineups."""
+    """Card instances used in Tips lineups are disjoint from those in Intermediate Tee lineups.
+
+    Compares by instance_id (not composite key) because the user may legitimately
+    own two copies of the same card (matching composite keys, distinct instance IDs)
+    and deploy each copy in a separate lineup, including across contests.
+    """
     result = optimize(ALL_CARDS, ALL_CONTESTS)
-    tips_keys = {
-        (card.player, card.salary, card.multiplier, card.collection)
+    tips_ids = {
+        card.instance_id
         for lineup in result.lineups.get("The Tips", [])
         for card in lineup.cards
     }
-    inter_keys = {
-        (card.player, card.salary, card.multiplier, card.collection)
+    inter_ids = {
+        card.instance_id
         for lineup in result.lineups.get("The Intermediate Tee", [])
         for card in lineup.cards
     }
-    overlap = tips_keys & inter_keys
-    assert not overlap, f"Cards reused across contests: {len(overlap)} card(s)"
+    overlap = tips_ids & inter_ids
+    assert not overlap, f"Card instances reused across contests: {len(overlap)} instance(s)"
 
 
 def test_card_uniqueness_all_lineups():
-    """No card (by composite key) appears in more than one lineup across all contests."""
+    """No card instance appears in more than one lineup across all contests."""
     result = optimize(ALL_CARDS, ALL_CONTESTS)
-    seen_keys: set = set()
+    seen_ids: set = set()
     for contest_name, lineups in result.lineups.items():
         for lineup in lineups:
             for card in lineup.cards:
-                card_key = (card.player, card.salary, card.multiplier, card.collection)
-                assert card_key not in seen_keys, (
-                    f"Card '{card.player}' reused in {contest_name}"
+                assert card.instance_id not in seen_ids, (
+                    f"Card '{card.player}' (instance {card.instance_id}) reused in {contest_name}"
                 )
-                seen_keys.add(card_key)
+                seen_ids.add(card.instance_id)
 
 
 # ---------------------------------------------------------------------------
@@ -383,4 +405,146 @@ def test_entry_overrides_unknown_contest_ignored():
     result = optimize(ALL_CARDS, ALL_CONTESTS, entry_overrides={"Bogus Contest": 5})
     assert len(result.lineups["The Tips"]) == 3
     assert len(result.lineups["The Intermediate Tee"]) == 2
+
+
+# ---------------------------------------------------------------------------
+# Tests: duplicate cards (same composite key, distinct instance_id)
+# ---------------------------------------------------------------------------
+
+def _build_dup_pool():
+    """A pool with one duplicated star plus enough fillers for 2 Tips lineups (12 cards)."""
+    cards = [
+        # Two copies of the same star card — composite key matches, instance IDs differ
+        make_card("Star Player", 12000, 1.5, "Core", 80.0, instance_id=1000),
+        make_card("Star Player", 12000, 1.5, "Core", 80.0, instance_id=1001),
+        # 10 unique fillers spanning enough salary to clear $30K floor
+        make_card("Filler 01", 9000, 1.2, "Core", 60.0),
+        make_card("Filler 02", 8500, 1.1, "Core", 58.0),
+        make_card("Filler 03", 8000, 1.0, "Core", 55.0),
+        make_card("Filler 04", 8000, 1.0, "Core", 54.0),
+        make_card("Filler 05", 8000, 1.0, "Core", 53.0),
+        make_card("Filler 06", 7500, 1.0, "Core", 52.0),
+        make_card("Filler 07", 9500, 1.2, "Core", 61.0),
+        make_card("Filler 08", 9000, 1.1, "Core", 59.0),
+        make_card("Filler 09", 8500, 1.0, "Core", 57.0),
+        make_card("Filler 10", 8500, 1.0, "Core", 56.0),
+    ]
+    return cards
+
+
+def test_duplicate_cards_used_in_separate_lineups():
+    """User owns 2 copies of one card. Optimizer should use both, in different lineups."""
+    cards = _build_dup_pool()
+    config = [ContestConfig("The Tips", 30000, 64000, 6, 2, {"Weekly Collection": 3, "Core": 6})]
+    result = optimize(cards, config)
+    assert len(result.lineups["The Tips"]) == 2, (
+        f"Expected 2 lineups; got {len(result.lineups['The Tips'])}. "
+        f"Notices: {result.infeasibility_notices}"
+    )
+    used_instance_ids = [c.instance_id for lu in result.lineups["The Tips"] for c in lu.cards]
+    assert 1000 in used_instance_ids, "First Star Player copy should be used"
+    assert 1001 in used_instance_ids, "Second Star Player copy should be used"
+
+
+def test_lock_on_duplicated_card_uses_one_instance():
+    """Locking a composite key with two duplicate copies in the pool selects exactly one instance."""
+    cards = _build_dup_pool()
+    config = [ContestConfig("The Tips", 30000, 64000, 6, 1, {"Weekly Collection": 3, "Core": 6})]
+    star_key = ("Star Player", 12000, 1.5, "Core")
+    cs = ConstraintSet(locked_cards=[star_key])
+    result = optimize(cards, config, constraints=cs)
+
+    assert len(result.lineups["The Tips"]) == 1
+    lineup = result.lineups["The Tips"][0]
+
+    star_in_lineup = [c for c in lineup.cards if c.player == "Star Player"]
+    assert len(star_in_lineup) == 1, (
+        f"Lock should select exactly one Star Player instance, got {len(star_in_lineup)}: "
+        f"{[(c.player, c.instance_id) for c in lineup.cards]}"
+    )
+    assert star_in_lineup[0].instance_id in (1000, 1001), (
+        f"Selected instance should be one of the duplicates, got {star_in_lineup[0].instance_id}"
+    )
+
+
+def test_optimize_rejects_negative_instance_id():
+    """The optimizer asserts every input card has instance_id >= 0."""
+    bad_card = make_card("Bad", 9000, 1.0, "Core", 60.0, instance_id=-1)
+    cards = TIPS_CARDS + [bad_card]
+    with pytest.raises(AssertionError, match="instance_id"):
+        optimize(cards, TIPS_CONFIG)
+
+
+def test_phase2_lock_on_duplicated_low_ev_card():
+    """Phase 2 _find_best_replacement correctly handles a locked, duplicated, low-EV card.
+
+    Scenario:
+      - Two copies of "Filler Star" share one composite key but distinct instance_ids.
+      - Filler Star's EV is far below the cards Phase 1 would otherwise pick, so
+        Phase 1's pure-optimal solve naturally excludes both copies.
+      - Locking Filler Star's composite key forces Phase 2's _satisfy_lock path,
+        which calls _find_best_replacement to swap the lock into the best slot.
+
+    Assertions:
+      1. Exactly one of the two copies ends up in some lineup (not zero, not both).
+      2. The other copy is still in result.unused_cards — proves used_instance_ids
+         was correctly updated by Phase 2 (no double-discard, no stale state).
+    """
+    cards = [
+        # Two copies of the low-EV target. Same composite key, distinct instance_ids.
+        make_card("Filler Star", 9000, 1.0, "Core", 50.0, instance_id=2000),
+        make_card("Filler Star", 9000, 1.0, "Core", 50.0, instance_id=2001),
+        # 12 high-EV unique cards that Phase 1 will prefer over Filler Star.
+        # Each has projected_score 90+, so EV >> 50.
+        make_card("Top 01", 9000, 1.2, "Core", 95.0),
+        make_card("Top 02", 9000, 1.2, "Core", 94.0),
+        make_card("Top 03", 9000, 1.2, "Core", 93.0),
+        make_card("Top 04", 9000, 1.2, "Core", 92.0),
+        make_card("Top 05", 9000, 1.2, "Core", 91.0),
+        make_card("Top 06", 9000, 1.2, "Core", 90.0),
+        make_card("Top 07", 9000, 1.1, "Core", 89.0),
+        make_card("Top 08", 9000, 1.1, "Core", 88.0),
+        make_card("Top 09", 9000, 1.1, "Core", 87.0),
+        make_card("Top 10", 9000, 1.1, "Core", 86.0),
+        make_card("Top 11", 9000, 1.1, "Core", 85.0),
+        make_card("Top 12", 9000, 1.1, "Core", 84.0),
+    ]
+    config = [ContestConfig("The Tips", 30000, 64000, 6, 2, {"Weekly Collection": 3, "Core": 6})]
+    star_key = ("Filler Star", 9000, 1.0, "Core")
+    cs = ConstraintSet(locked_cards=[star_key])
+    result = optimize(cards, config, constraints=cs)
+
+    # Sanity: 2 lineups built, no infeasibility
+    assert len(result.lineups["The Tips"]) == 2, (
+        f"Expected 2 lineups, got {len(result.lineups['The Tips'])}. "
+        f"Notices: {result.infeasibility_notices}"
+    )
+
+    # Confirm Phase 2 was actually exercised: Phase 1 alone (no locks) would never
+    # pick Filler Star because its EV (50) is below every other card. So the only
+    # path that gets Filler Star into a lineup is _satisfy_lock -> _find_best_replacement.
+    star_instances_used = [
+        c.instance_id
+        for lu in result.lineups["The Tips"]
+        for c in lu.cards
+        if c.player == "Filler Star"
+    ]
+
+    # Assertion 1: exactly one Filler Star instance is in the lineups
+    assert len(star_instances_used) == 1, (
+        f"Lock should produce exactly one Filler Star instance in lineups; "
+        f"got {len(star_instances_used)}: {star_instances_used}"
+    )
+    used_id = star_instances_used[0]
+    assert used_id in (2000, 2001), f"Used instance_id {used_id} should be one of the duplicates"
+
+    # Assertion 2 (bonus): the OTHER copy is still free for future use.
+    # This proves used_instance_ids was correctly updated by Phase 2 — no
+    # double-discard (which would mark both used) and no stale state.
+    other_id = 2001 if used_id == 2000 else 2000
+    unused_ids = {c.instance_id for c in result.unused_cards}
+    assert other_id in unused_ids, (
+        f"Other Filler Star instance ({other_id}) should be in unused_cards but isn't. "
+        f"unused_cards instance_ids: {sorted(unused_ids)}"
+    )
 

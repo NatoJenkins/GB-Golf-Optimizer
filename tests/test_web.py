@@ -241,12 +241,13 @@ def _build_card_pool_json():
             "multiplier": m,
             "collection": "Core",
             "expires": "2027-12-31",
+            "instance_id": idx,
             "projected_score": 72.5,
             "effective_value": round(72.5 * m, 6),
             "franchise": "False",
             "rookie": "False",
         }
-        for p, s, m in _VALID_PLAYERS
+        for idx, (p, s, m) in enumerate(_VALID_PLAYERS)
     ]
     return json.dumps(cards)
 
@@ -302,6 +303,53 @@ def test_reoptimize_malformed_card_pool(client):
     assert response.status_code == 200
     html = response.data.decode("utf-8")
     assert "Session expired" in html
+
+
+def test_reoptimize_rejects_payload_missing_instance_id(client):
+    """POST /reoptimize with a card payload missing 'instance_id' is rejected at the route layer.
+
+    The user sees the stale-session message; the optimizer is never invoked.
+    Regression guard: a missing instance_id must NOT silently fall through with
+    a fabricated ID, which could collide with real IDs in the same payload.
+    """
+    import json
+    cards = [
+        # First card has instance_id (real); second is "legacy" / missing it.
+        {
+            "player": "Player A",
+            "salary": 11000,
+            "multiplier": 1.5,
+            "collection": "Core",
+            "expires": "2027-12-31",
+            "instance_id": 0,
+            "projected_score": 72.5,
+            "effective_value": 108.75,
+            "franchise": "False",
+            "rookie": "False",
+        },
+        {
+            "player": "Player B",
+            "salary": 10500,
+            "multiplier": 1.4,
+            "collection": "Core",
+            "expires": "2027-12-31",
+            # NO instance_id — simulates stale session data
+            "projected_score": 70.0,
+            "effective_value": 98.0,
+            "franchise": "False",
+            "rookie": "False",
+        },
+    ]
+    response = client.post(
+        "/reoptimize",
+        data={"card_pool": json.dumps(cards)},
+        content_type="multipart/form-data",
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Session expired" in html, (
+        "Route should render the stale-session message, not 500 or run the optimizer"
+    )
 
 
 def test_reoptimize_uses_session_constraints(client):
