@@ -59,6 +59,14 @@ def create_app() -> Flask:
     from gbgolf.web.routes import bp
     app.register_blueprint(bp)
 
+    # Inject the app version (parsed from CHANGELOG.md) into every template.
+    # Single source of truth — the version string lives in CHANGELOG.md only.
+    from gbgolf.changelog import get_latest_version
+
+    @app.context_processor
+    def _inject_version():
+        return {"app_version": get_latest_version()}
+
     @app.cli.command("fetch-projections")
     def fetch_projections_cmd():
         """Fetch player projections from DataGolf API and store in database."""

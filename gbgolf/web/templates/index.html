@@ -1,32 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GB Golf Optimizer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Prompt:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-</head>
-<body>
+{% extends "base.html" %}
 
+{% block before_header %}
 <!-- Full-page loading overlay shown while optimization runs -->
 <div id="loading-overlay" style="display:none;">
   <div class="overlay-content">Optimizing&hellip;</div>
 </div>
+{% endblock %}
 
-<header>
-  <div class="hero-bg"></div>
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <img src="https://gameblazers.com/gb-logo.png" alt="GameBlazers" class="gb-logo" onerror="this.style.display='none'" />
-    <h1>GB Golf Optimizer</h1>
-    <p class="hero-subtitle">Fantasy Golf &bull; Lineup Optimizer</p>
-  </div>
-</header>
-
-<main>
+{% block content %}
 
   <!-- Upload form — collapses to a toggle after results are shown -->
   <details {% if not show_results %}open{% endif %} id="upload-section">
@@ -322,8 +303,9 @@
   </div><!-- /.main-content -->
   </div><!-- /.content-layout -->
 
-</main>
+{% endblock %}
 
+{% block scripts %}
 <script>
   document.getElementById("upload-form").addEventListener("submit", function () {
     document.getElementById("loading-overlay").style.display = "flex";
@@ -432,7 +414,7 @@
     if (locks === 0 && excludes === 0) {
       el.style.display = "none";
     } else {
-      el.textContent = "Locks: " + locks + " \u2022 Excludes: " + excludes;
+      el.textContent = "Locks: " + locks + " • Excludes: " + excludes;
       el.style.display = "";
     }
   }
@@ -516,9 +498,9 @@
     var metaEl = el.querySelector('.staleness-meta');
     if (!metaEl) return;
 
-    var text = '\u2014 ' + buildStr('fetched', fetchDate);
+    var text = '— ' + buildStr('fetched', fetchDate);
     if (dgUtc) {
-      text += ' \u00b7 ' + buildStr('DG updated', new Date(dgUtc));
+      text += ' · ' + buildStr('DG updated', new Date(dgUtc));
     }
     metaEl.textContent = text;
   })();
@@ -564,6 +546,4 @@
     });
   });
 </script>
-
-</body>
-</html>
+{% endblock %}

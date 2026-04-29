@@ -155,6 +155,20 @@ def _db_template_vars():
 bp = Blueprint("main", __name__)
 
 
+@bp.route("/changelog", methods=["GET"])
+def changelog():
+    """Render CHANGELOG.md as HTML. Read-only; no DB access required."""
+    import markdown as _md
+
+    from gbgolf.changelog import read_changelog_text
+
+    raw = read_changelog_text()
+    html = _md.markdown(raw, extensions=["sane_lists"]) if raw else (
+        "<p>Changelog unavailable.</p>"
+    )
+    return render_template("changelog.html", changelog_html=html)
+
+
 @bp.route("/", methods=["GET", "POST"])
 def index():
     """Main page: upload form (GET) and optimization results (POST)."""
