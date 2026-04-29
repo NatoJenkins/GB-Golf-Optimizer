@@ -459,7 +459,7 @@ button[type="submit"]:active {
   box-shadow: 0 1px 8px var(--accent-glow);
 }
 
-#clear-all-btn {
+.btn-secondary {
   background: transparent;
   border: 1px solid var(--border-2);
   border-radius: 5px;
@@ -471,15 +471,22 @@ button[type="submit"]:active {
   text-transform: uppercase;
   color: var(--text-muted);
   cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
-  margin-left: auto;
-  flex-shrink: 0;
 }
 
-#clear-all-btn:hover {
+.btn-secondary:hover {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-dim);
+}
+
+/* Inside the player-pool summary's flex layout, the Clear All button
+   pushes to the right edge — preserves original positioning. */
+#player-pool-section summary .btn-secondary {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 /* ── Alerts & banners ────────────────────────────────────── */

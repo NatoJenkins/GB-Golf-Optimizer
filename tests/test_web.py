@@ -565,7 +565,7 @@ def test_clear_all_button_rendered(client):
     response = _post_csvs(client, SAMPLE_ROSTER_CSV, SAMPLE_PROJECTIONS_CSV)
     assert response.status_code == 200
     html = response.data.decode("utf-8")
-    assert 'id="clear-all-btn"' in html
+    assert ">Clear All</button>" in html
 
 
 def test_clear_all_button_absent_on_get(client):
@@ -573,7 +573,7 @@ def test_clear_all_button_absent_on_get(client):
     response = client.get("/")
     assert response.status_code == 200
     html = response.data.decode("utf-8")
-    assert 'id="clear-all-btn"' not in html
+    assert ">Clear All</button>" not in html
 
 
 # ---------------------------------------------------------------------------

@@ -158,7 +158,7 @@
     <input type="hidden" name="card_pool" value="{{ card_pool_json | e }}" />
 
     <details id="player-pool-section">
-      <summary>Lock / Exclude Players <span class="pool-hint">— <strong>Lock</strong> forces a player into at least one lineup &nbsp;·&nbsp; <strong>Exclude</strong> removes a player from all lineups</span> <button type="button" id="clear-all-btn" onclick="clearAllCheckboxes(); event.stopPropagation();">Clear All</button></summary>
+      <summary>Lock / Exclude Players <span class="pool-hint">— <strong>Lock</strong> forces a player into at least one lineup &nbsp;·&nbsp; <strong>Exclude</strong> removes a player from all lineups</span> <button type="button" class="btn-secondary" onclick="clearAllCheckboxes(); event.stopPropagation();">Clear All</button></summary>
       <div class="pool-inner">
         <table>
           <thead>
