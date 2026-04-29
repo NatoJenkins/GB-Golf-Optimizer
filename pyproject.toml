@@ -1,6 +1,8 @@
 [project]
 name = "gbgolf"
-version = "0.1.0"
+# Mirrors the topmost entry in CHANGELOG.md. Bump in the same commit as the
+# changelog entry. Single source of truth for version is CHANGELOG.md.
+version = "1.2.2"
 requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2.0",
