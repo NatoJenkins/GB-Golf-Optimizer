@@ -168,3 +168,9 @@ After implementing the fix, do all of the following on the VPS (script is still 
 - Exposure caps / diversity constraints (separate ADV-01 / ADV-02 backlog items).
 - Global ILP rewrite (was a premature fix proposal in the prior plan; not needed once instance tracking is correct).
 - UI changes to surface duplicate-card detection (could be added later as a hint in the player pool, but not required to fix the bug).
+
+## Backlog (deferred)
+
+- **Reset `_next_instance_id` per-test for reproducibility.** The module-level counter in `tests/test_optimizer.py` and `tests/test_constraints.py` persists across tests within a module. Currently safe (no test asserts exact auto-assigned IDs), but a future test that does would be order-dependent. Add an autouse fixture to reset the counter per-test if/when this becomes a concern.
+
+- **`scripts/diagnose_lineup4.py` was deleted** (separate commit) once this fix shipped. Its `replay_phase1` function re-implemented the Phase 1 loop using the old composite-key tracking, so it would no longer have matched deployed behavior. If a similar diagnostic is needed in the future, call `optimize()` with instrumentation hooks rather than re-implementing the loop locally — re-implementations rot on the next optimizer change.
